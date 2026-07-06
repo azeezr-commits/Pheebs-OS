@@ -95,7 +95,7 @@ export const CallHudOverlay: React.FC<CallHudOverlayProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Active Call Stages */}
-          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800 }}>CURRENT STAGE</span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
@@ -126,7 +126,7 @@ export const CallHudOverlay: React.FC<CallHudOverlayProps> = ({
           </div>
 
           {/* Next coached question */}
-          <div className="glass-panel" style={{ padding: '20px', borderLeft: '4px solid var(--secondary)', background: 'rgba(0,229,255,0.01)' }}>
+          <div className="card-panel" style={{ padding: '20px', borderLeft: '4px solid var(--secondary)', background: 'rgba(0,229,255,0.01)' }}>
             <span style={{ fontSize: '10px', color: 'var(--secondary)', fontWeight: 800 }}>NEXT COACHED QUESTION</span>
             <p style={{ fontSize: '14.5px', fontWeight: 600, color: '#fff', marginTop: '6px', lineHeight: '1.4' }}>
               "{getCoachedQuestion()}"
@@ -134,7 +134,7 @@ export const CallHudOverlay: React.FC<CallHudOverlayProps> = ({
           </div>
 
           {/* Deal signals */}
-          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800 }}>DEAL SIGNALS</span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12.5px' }}>
               <div style={{ color: 'var(--success)' }}>✓ Requested Audit Proof</div>
@@ -149,7 +149,7 @@ export const CallHudOverlay: React.FC<CallHudOverlayProps> = ({
 
         {/* Center column: Live Notes log */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div className="glass-panel" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="card-panel" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800 }}>LIVE NOTE RECORDER (AUTO-SAVING)</span>
             <textarea
               className="input-field"
@@ -182,7 +182,7 @@ export const CallHudOverlay: React.FC<CallHudOverlayProps> = ({
         </div>
 
         {/* Right column: Objections Cheat Sheet */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800 }}>OBJECTIONS CHEAT SHEET</span>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>

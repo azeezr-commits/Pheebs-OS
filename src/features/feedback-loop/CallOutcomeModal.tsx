@@ -80,7 +80,7 @@ export const CallOutcomeModal: React.FC<CallOutcomeModalProps> = ({
     }}>
       
       <div 
-        className="glass-panel"
+        className="card-panel"
         style={{
           width: '400px',
           padding: '24px',

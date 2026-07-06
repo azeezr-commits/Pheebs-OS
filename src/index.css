@@ -25,7 +25,7 @@ body {
 }
 
 /* Linear & Apple inspired UI elements */
-.glass-panel {
+.card-panel {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px; /* Slightly sharper, less rounded for precision feel */
@@ -33,11 +33,11 @@ body {
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.glass-panel:hover {
+.card-panel:hover {
   border-color: var(--border-focus);
 }
 
-.glass-card {
+.card-item {
   background: rgba(255, 255, 255, 0.01);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -45,7 +45,7 @@ body {
   transition: all 0.2s ease;
 }
 
-.glass-card:hover {
+.card-item:hover {
   background: var(--bg-hover);
   border-color: var(--border-focus);
 }

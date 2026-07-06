@@ -2,12 +2,12 @@ import type { AEBriefing } from '../../domain/business/types';
 
 // Pre-seeded high-fidelity data to represent verified states
 const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
-  'glowmedspa': {
-    businessName: 'Glow Med Spa',
-    website: 'glowmedspa-example.com',
-    niche: 'Med Spa',
-    executiveSummary: 'Glow Med Spa is a high-end local aesthetic clinic with solid reviews (4.8 stars), but suffers from severe booking drop-offs and after-hours call leakages. Reception is busy, leaving late-night search leads uncaptured.',
-    likelyRevenueLeak: 'Late-night leads searching for botox/facials hit a wall after 6 PM. No-shows are estimated at 18% because they rely on manual confirmations.',
+  'brightsmileorthodontics': {
+    businessName: 'Bright Smile Orthodontics',
+    website: 'brightsmile-example.com',
+    niche: 'Dental',
+    executiveSummary: 'Bright Smile Orthodontics is a multi-chair dental practice with solid reviews (4.8 stars), but suffers from severe booking drop-offs and after-hours call leakages. Reception is busy, leaving late-night search leads uncaptured.',
+    likelyRevenueLeak: 'Late-night leads searching for consultations hit a wall after 6 PM. No-shows are estimated at 18% because they rely on manual confirmations.',
     googleProfileFindings: [
       'Profile verified but missing product catalog integration.',
       'Average rating: 4.8 stars (120 reviews). Response rate is slow (avg. 14 days).'
@@ -26,7 +26,7 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
     ],
     discoveryQuestions: [
       'How does your staff track how many callers hang up during peak hours when the front desk is busy?',
-      'If a prospect searches for botox at 10 PM and clicks your booking link, how many of them complete the registration form?'
+      'If a prospect searches for consultations at 10 PM and clicks your booking link, how many of them complete the registration form?'
     ],
     recommendedAnchor: 'Pitch an instant automated text-back assistant that captures missed calls and handles booking in 2 clicks without forced registration.',
     confidenceScore: 92,
@@ -36,11 +36,11 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'Manual checkout click-stream test'
     ]
   },
-  'vertexdental': {
-    businessName: 'Vertex Dental',
-    website: 'vertexdental-example.com',
+  'evergreendental': {
+    businessName: 'Evergreen Dental',
+    website: 'evergreendental-example.com',
     niche: 'Dental',
-    executiveSummary: 'Vertex Dental has a clean local profile but extremely high friction digital booking. They rely on PDF download forms, causing a massive leak in emergency patient acquisition.',
+    executiveSummary: 'Evergreen Dental has a clean local profile but extremely high friction digital booking. They rely on PDF download forms, causing a massive leak in emergency patient acquisition.',
     likelyRevenueLeak: 'Call abandonment sits at an estimated 22% due to single-line routing. High drop-off from patients trying to submit appointment requests.',
     googleProfileFindings: [
       'Google Maps coordinates guide patients to the back alley instead of the front entrance.',

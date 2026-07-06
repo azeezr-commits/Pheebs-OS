@@ -60,7 +60,7 @@ export const GrowthModule: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         
         {/* XP Level Card */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>AE EXPERIENCE LEVEL</span>
             <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 800, background: 'rgba(124,92,255,0.1)', padding: '2px 8px', borderRadius: '4px' }}>
@@ -89,7 +89,7 @@ export const GrowthModule: React.FC = () => {
         </div>
 
         {/* Streak Tracker Card */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
           <Flame size={44} color="var(--danger)" fill="rgba(239, 68, 68, 0.15)" style={{ flexShrink: 0 }} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div>
@@ -121,7 +121,7 @@ export const GrowthModule: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
         
         {/* AI Coach Insights */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700, color: 'var(--primary)', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
             <Brain size={16} /> AI Coach History Logs
           </div>
@@ -143,7 +143,7 @@ export const GrowthModule: React.FC = () => {
         </div>
 
         {/* Learning metrics */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
             AE Learning Scorecard
           </h3>

@@ -189,7 +189,7 @@ export const AnalyzerModule: React.FC<AnalyzerModuleProps> = ({
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <form onSubmit={handleSubmit} className="card-panel" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <h3 style={{ fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '12px', marginBottom: '6px' }}>
               <SearchCode size={20} color="var(--primary)" /> Prospect Details
             </h3>

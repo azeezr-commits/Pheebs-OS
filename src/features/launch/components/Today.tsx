@@ -11,10 +11,10 @@ interface TodayProps {
 
 export const Today: React.FC<TodayProps> = ({ tasks }) => {
   const defaultTasks: TaskItem[] = [
-    { time: '09:00', task: 'Demo with Tawana' },
-    { time: '11:30', task: 'Follow-up with Natural Forte' },
-    { time: '14:00', task: 'Proposal pending for Glow Med Spa' },
-    { time: '16:30', task: 'Call Review with Team' }
+    { time: '09:00', task: 'Demo with Bright Smile Orthodontics (Preparing proposal)' },
+    { time: '11:30', task: 'Follow-up with Evergreen Dental (Objection check)' },
+    { time: '14:00', task: 'Proposal pending for Dental Care Associates (Ready to close)' },
+    { time: '16:30', task: 'Call Review with Peak Wellness (Reviewing coaching logs)' }
   ];
 
   const activeTasks = tasks || defaultTasks;

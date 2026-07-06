@@ -216,7 +216,7 @@ export const VaultModule: React.FC<VaultModuleProps> = ({
             ].map((stat, idx) => (
               <div 
                 key={idx} 
-                className="glass-panel" 
+                className="card-panel" 
                 style={{ 
                   padding: '14px', 
                   textAlign: 'center',
@@ -231,7 +231,7 @@ export const VaultModule: React.FC<VaultModuleProps> = ({
           </div>
 
           {/* Large Search-first Obsidian layout */}
-          <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ position: 'relative' }}>
               <input 
                 type="text" 
@@ -326,7 +326,7 @@ export const VaultModule: React.FC<VaultModuleProps> = ({
             {/* Sidebar filter index */}
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Brain node links list */}
-              <div className="glass-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div className="card-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em', padding: '6px 8px' }}>BRAIN NODES</span>
                 {[
                   { id: 'All', name: 'All Nodes' },
@@ -366,7 +366,7 @@ export const VaultModule: React.FC<VaultModuleProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {filteredSessions.length === 0 ? (
                 /* EMPTY STATE BOARD */
-                <div className="glass-panel" style={{
+                <div className="card-panel" style={{
                   padding: '60px 40px',
                   textAlign: 'center',
                   display: 'flex',
@@ -399,7 +399,7 @@ export const VaultModule: React.FC<VaultModuleProps> = ({
                   {filteredSessions.map((session) => (
                     <div 
                       key={session.id}
-                      className="glass-panel"
+                      className="card-panel"
                       style={{
                         padding: '16px',
                         display: 'flex',

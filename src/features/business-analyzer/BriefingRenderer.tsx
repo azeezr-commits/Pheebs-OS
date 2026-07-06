@@ -97,7 +97,7 @@ export const BriefingRenderer: React.FC<BriefingRendererProps> = ({
       </div>
 
       {/* 2. Business Overview Grid */}
-      <div className="glass-panel" style={{ padding: '28px' }}>
+      <div className="card-panel" style={{ padding: '28px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '24px' }}>
           <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.1em' }}>
             AUDIT REPORT SUMMARY ({briefing.niche.toUpperCase()})
@@ -140,7 +140,7 @@ export const BriefingRenderer: React.FC<BriefingRendererProps> = ({
       </div>
 
       {/* 3. "What I Found" Checklist */}
-      <div className="glass-panel" style={{ padding: '24px' }}>
+      <div className="card-panel" style={{ padding: '24px' }}>
         <h3 style={{ fontSize: '15px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '12px', marginBottom: '16px' }}>
           What I Found
         </h3>
@@ -161,7 +161,7 @@ export const BriefingRenderer: React.FC<BriefingRendererProps> = ({
       </div>
 
       {/* 4. Guided Next Step CTAs */}
-      <div className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: 'rgba(124, 92, 255, 0.03)', borderColor: 'rgba(124, 92, 255, 0.15)' }}>
+      <div className="card-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: 'rgba(124, 92, 255, 0.03)', borderColor: 'rgba(124, 92, 255, 0.15)' }}>
         <div>
           <h4 style={{ fontSize: '16px', fontWeight: 700 }}>Ready to close this prospect?</h4>
           <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '2px' }}>Choose the next step to execute outreach sequences or practice cold calls.</p>

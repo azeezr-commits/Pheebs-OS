@@ -232,7 +232,7 @@ export const OutreachStudioModule: React.FC<OutreachStudioModuleProps> = ({
 
       {sessions.length === 0 ? (
         /* Empty Analyzer logs state */
-        <div className="glass-panel" style={{ padding: '60px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '60px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <AlertTriangle size={48} color="var(--warning)" style={{ opacity: 0.8 }} />
           <div>
             <h3 style={{ fontSize: '18px' }}>No completed business audits found</h3>
@@ -248,7 +248,7 @@ export const OutreachStudioModule: React.FC<OutreachStudioModuleProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Campaign Overview Panel */}
-          <div className="glass-panel" style={{
+          <div className="card-panel" style={{
             padding: '18px 24px',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -278,7 +278,7 @@ export const OutreachStudioModule: React.FC<OutreachStudioModuleProps> = ({
           <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
           
           {/* Left Tab navigation */}
-          <aside className="glass-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <aside className="card-panel" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em', padding: '6px 8px' }}>OUTBOUND CHANNELS</span>
             {[
               { id: 'email', name: 'Email Sequences', icon: Mail },

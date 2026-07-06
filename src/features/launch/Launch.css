@@ -49,7 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 48px; /* 48px vertical section spacing */
+  margin-top: 64px; /* 64px vertical section spacing */
 }
 
 .launch-section-heading {
@@ -162,7 +162,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #1C1C1E;
+  border-bottom: 1px solid #2C2C2F;
   padding-bottom: 8px;
 }
 
@@ -215,7 +215,7 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: 16px;
-  border-bottom: 1px solid #1C1C1E;
+  border-bottom: 1px solid #2C2C2F;
 }
 
 .recent-row:last-child {

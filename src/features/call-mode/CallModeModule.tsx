@@ -109,7 +109,7 @@ export const CallModeModule: React.FC = () => {
 
       {!inCall ? (
         <div 
-          className="glass-panel" 
+          className="card-panel" 
           style={{ 
             padding: '40px', 
             textAlign: 'center', 
@@ -154,7 +154,7 @@ export const CallModeModule: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
             {/* Call timer header bar */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderColor: 'var(--primary)' }}>
+            <div className="card-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderColor: 'var(--primary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span className="spin-slow" style={{ display: 'inline-flex', color: 'var(--danger)' }}>
                   <PhoneOff size={20} />
@@ -172,7 +172,7 @@ export const CallModeModule: React.FC = () => {
             </div>
 
             {/* Live notes logger textarea */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <label style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>LIVE CONVERSATION NOTES</label>
               <textarea 
                 className="input-field" 
@@ -184,7 +184,7 @@ export const CallModeModule: React.FC = () => {
             </div>
 
             {/* Objection responses assistant */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <h4 style={{ fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Brain size={15} color="var(--primary)" /> Coached Objection Response Scripts
               </h4>
@@ -251,7 +251,7 @@ export const CallModeModule: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
             {/* Discovery checklist */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <h4 style={{ fontSize: '13px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
                 Discovery Checklist
               </h4>
@@ -277,7 +277,7 @@ export const CallModeModule: React.FC = () => {
             </div>
 
             {/* Quick Outcome Logger panel */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <h4 style={{ fontSize: '13px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
                 Log Call Outcome
               </h4>

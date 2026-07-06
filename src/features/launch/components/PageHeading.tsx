@@ -16,7 +16,6 @@ export const PageHeading: React.FC = () => {
       <div className="launch-title-container">
         <h1 className="launch-title">Launch</h1>
       </div>
-      <p className="launch-subtitle">Your day begins here.</p>
     </header>
   );
 };

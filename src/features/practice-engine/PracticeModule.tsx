@@ -57,7 +57,7 @@ export const PracticeModule: React.FC = () => {
     <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Header Goals */}
-      <div className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="card-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.05em' }}>GAMIFIED DRILLS</span>
           <h2 style={{ fontSize: '20px', marginTop: '2px' }}>Objection Response Trainer</h2>
@@ -87,7 +87,7 @@ export const PracticeModule: React.FC = () => {
       </div>
 
       {/* Main Objection Drill Panel */}
-      <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
         <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 700, letterSpacing: '0.05em', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
           PROSPECT OBJECTION
         </div>
@@ -144,7 +144,7 @@ export const PracticeModule: React.FC = () => {
                   lineHeight: '1.5',
                   transition: 'all 0.2s ease'
                 }}
-                className={isAnswered ? '' : 'glass-card'}
+                className={isAnswered ? '' : 'card-item'}
               >
                 {opt.text}
               </div>
@@ -202,7 +202,7 @@ export const PracticeModule: React.FC = () => {
       </div>
 
       {/* Drill XP Score stats */}
-      <div className="glass-panel" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="card-panel" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
           <Sparkles size={14} color="var(--warning)" /> Drilling matches Sales DNA parameters
         </span>

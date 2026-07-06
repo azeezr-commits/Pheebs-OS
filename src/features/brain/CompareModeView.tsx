@@ -13,7 +13,7 @@ export const CompareModeView: React.FC<CompareModeViewProps> = ({
 }) => {
   if (selectedSessions.length < 2) {
     return (
-      <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
+      <div className="card-panel" style={{ padding: '40px', textAlign: 'center' }}>
         <ShieldAlert size={48} color="var(--warning)" style={{ marginBottom: '12px' }} />
         <h3>Compare Mode requires at least 2 sessions</h3>
         <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Select multiple cards from the vault explorer to verify metrics side-by-side.</p>
@@ -67,7 +67,7 @@ export const CompareModeView: React.FC<CompareModeViewProps> = ({
       </div>
 
       {/* Compare Grid Table */}
-      <div className="glass-panel" style={{ overflowX: 'auto', padding: '24px' }}>
+      <div className="card-panel" style={{ overflowX: 'auto', padding: '24px' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>

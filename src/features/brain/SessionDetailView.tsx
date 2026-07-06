@@ -258,7 +258,7 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
       </div>
 
       {/* Hero Overview */}
-      <div className="glass-panel" style={{ padding: '24px', background: 'rgba(22, 22, 33, 0.6)' }}>
+      <div className="card-panel" style={{ padding: '24px', background: 'rgba(22, 22, 33, 0.6)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
             <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.1em' }}>
@@ -295,7 +295,7 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
 
       {/* Persisted Outreach Assets Panel */}
       {session.payload.outreach && (
-        <div className="glass-panel" style={{ padding: '20px' }}>
+        <div className="card-panel" style={{ padding: '20px' }}>
           <h3 style={{ fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
             <Send size={16} color="var(--primary)" /> Saved Outreach Assets
           </h3>
@@ -324,7 +324,7 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
         
         {/* Left: AI Reflection */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Lightbulb size={16} color="var(--primary)" /> AI Session Reflection
           </h3>
@@ -372,7 +372,7 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
         </div>
 
         {/* Right: Private Notes */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', display: 'flex', justifySelf: 'space-between', alignItems: 'center' }}>
             <span>Private Notes (AE Only)</span>
             {!isEditingNotes && (
@@ -418,14 +418,14 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
         
         {/* Left: Lessons Checklist */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <BookOpen size={16} color="var(--success)" /> Pinned Lessons (Sales DNA Seeds)
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {lessons.map((lesson, idx) => (
-              <div key={idx} className="glass-card" style={{ display: 'flex', justifySelf: 'space-between', alignItems: 'center', padding: '8px 12px' }}>
+              <div key={idx} className="card-item" style={{ display: 'flex', justifySelf: 'space-between', alignItems: 'center', padding: '8px 12px' }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12.5px' }}>
                   <span style={{ color: 'var(--success)' }}>💡</span>
                   <span>{lesson}</span>
@@ -459,7 +459,7 @@ export const SessionDetailView: React.FC<SessionDetailViewProps> = ({
         </div>
 
         {/* Right: Session Timeline */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <TrendingUp size={16} color="var(--secondary)" /> Session Timeline Audit
           </h3>

@@ -260,23 +260,23 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
       </div>
 
       {/* Header Panel */}
-      <div className="glass-panel" style={{ padding: '24px 28px' }}>
+      <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '24px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <h1 style={{ fontSize: '32px', fontWeight: 500, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>
                 {session.businessName}
               </h1>
-              <span style={{ fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+              <span style={{ fontSize: '11px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
                 ★★★★☆ Hot Lead
               </span>
             </div>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-              <span>Stage: <strong>Meeting Scheduled</strong></span>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '13.5px', color: '#A1A1AA' }}>
+              <span>Stage: <strong style={{ color: '#FFFFFF' }}>Meeting Scheduled</strong></span>
               <span>•</span>
-              <span>Owner: <strong>Azeez</strong></span>
+              <span>Owner: <strong style={{ color: '#FFFFFF' }}>Azeez</strong></span>
               <span>•</span>
-              <span>Last Activity: <strong>Accepted Google Meet</strong></span>
+              <span>Last Activity: <strong style={{ color: '#FFFFFF' }}>Accepted Google Meet</strong></span>
             </div>
           </div>
         </div>
@@ -286,8 +286,8 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
         
         {/* ================= SECTION 1: OVERVIEW ================= */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px', marginBottom: '16px' }}>
+        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
             1. Overview
           </h3>
 
@@ -317,25 +317,25 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
             {/* AI Summary */}
             <div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, display: 'block', marginBottom: '4px' }}>AI SUMMARY</span>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                SkinT Esthetics is a solo-operated med spa using Vagaro. Google profile score is low due to missing posts and profile completeness. Tawana requested proof before agreeing to a meeting. Primary opportunity is increasing local visibility.
+              <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5' }}>
+                Bright Smile Orthodontics is a multi-chair dental practice using Vagaro. Google profile score is low due to missing posts and profile completeness. Tawana requested proof before agreeing to a meeting. Primary opportunity is increasing local visibility.
               </p>
               {hasPhoneLeak && (
-                <div style={{ fontSize: '11.5px', color: 'var(--warning)', marginTop: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <div style={{ fontSize: '13px', color: '#F59E0B', marginTop: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
                   <ShieldAlert size={13} /> Phone line abandonment detected.
                 </div>
               )}
             </div>
 
             {/* Deal Signals Checklist */}
-            <div className="glass-panel" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, display: 'block', marginBottom: '8px' }}>DEAL SIGNALS</span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12.5px' }}>
-                <div style={{ color: 'var(--success)' }}>✓ Requested proof</div>
-                <div style={{ color: 'var(--success)' }}>✓ Accepted meeting</div>
-                <div style={{ color: 'var(--success)' }}>✓ Opened emails</div>
-                <div style={{ color: 'var(--warning)' }}>⚠ Uses Vagaro</div>
-                <div style={{ color: 'var(--danger)' }}>⚠ Price concern</div>
+            <div style={{ padding: '16px 20px', borderLeft: '2px solid #3B3B40' }}>
+              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>DEAL SIGNALS</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>
+                <div style={{ color: '#22C55E' }}>✓ Requested proof</div>
+                <div style={{ color: '#22C55E' }}>✓ Accepted meeting</div>
+                <div style={{ color: '#22C55E' }}>✓ Opened emails</div>
+                <div style={{ color: '#F59E0B' }}>⚠ Uses Vagaro</div>
+                <div style={{ color: '#EF4444' }}>⚠ Price concern</div>
               </div>
             </div>
           </div>
@@ -356,8 +356,8 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
         </div>
 
         {/* ================= SECTION 2: STRATEGY ================= */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px', marginBottom: '16px' }}>
+        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
             2. Strategy parameters
           </h3>
 
@@ -399,8 +399,8 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
         </div>
 
         {/* ================= SECTION 3: ACTION CENTER ================= */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px', marginBottom: '16px' }}>
+        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
             3. Action Center
           </h3>
 
@@ -408,7 +408,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
             
             <button 
               onClick={() => onStartCall(session.businessName)}
-              className="glass-panel" 
+              className="card-panel" 
               style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
@@ -420,7 +420,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
 
             <button 
               onClick={() => setIsPlaybookOpen(true)}
-              className="glass-panel" 
+              className="card-panel" 
               style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
@@ -435,7 +435,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                 navigator.clipboard.writeText(coldEmailBody);
                 alert('Email script copied to clipboard!');
               }}
-              className="glass-panel" 
+              className="card-panel" 
               style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
@@ -450,7 +450,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                 navigator.clipboard.writeText(linkedin);
                 alert('LinkedIn script copied!');
               }}
-              className="glass-panel" 
+              className="card-panel" 
               style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
@@ -463,41 +463,41 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
           </div>
 
           {/* Expanded Outreach Preview block */}
-          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div className="glass-panel" style={{ padding: '16px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>COLD EMAIL COPY</span>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '8px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-                Subject: {coldEmailSubject}
+          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+            <div style={{ padding: '0 20px 0 0', borderRight: '1px solid #2C2C2F' }}>
+              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>COLD EMAIL COPY</span>
+              <div style={{ fontSize: '13.5px', color: '#A1A1AA', marginTop: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                <strong>Subject:</strong> {coldEmailSubject}
                 {"\n\n"}{coldEmailBody}
               </div>
             </div>
-            <div className="glass-panel" style={{ padding: '16px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>COLD CALL & VOICEMAIL SCRIPT</span>
-              <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '8px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-                Opening: {callOpening}
-                {"\n\n"}Permission Check: {callPermission}
-                {"\n\n"}Curiosity Hook: {callCuriosity}
-                {"\n\n"}Voicemail: {voicemail}
+            <div style={{ padding: '0 0 0 20px' }}>
+              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>COLD CALL & SCRIPT</span>
+              <div style={{ fontSize: '13.5px', color: '#A1A1AA', marginTop: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                <strong>Opening:</strong> {callOpening}
+                {"\n\n"}<strong>Permission Check:</strong> {callPermission}
+                {"\n\n"}<strong>Curiosity Hook:</strong> {callCuriosity}
+                {"\n\n"}<strong>Voicemail:</strong> {voicemail}
               </div>
             </div>
           </div>
         </div>
 
         {/* ================= SECTION 4: HISTORY ================= */}
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px', marginBottom: '16px' }}>
+        <div style={{ paddingBottom: '32px', marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
             4. History & Client Updates
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
             
             {/* Timeline */}
             <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>INTELLIGENT ACTIVITY FEED</span>
+              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>INTELLIGENT ACTIVITY FEED</span>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginTop: '12px' }}>
                 {timeline.map((item, idx) => (
-                  <div key={idx} className="glass-panel" style={{ padding: '10px 14px', border: '1px solid rgba(255,255,255,0.02)' }}>
+                  <div key={idx} style={{ padding: '14px 0', borderBottom: '1px solid #2C2C2F' }}>
                     <div 
                       onClick={() => toggleTimelineExpand(idx)}
                       style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
@@ -515,7 +515,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                     </div>
 
                     {item.expanded && item.detail && (
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.05)', lineHeight: '1.4' }}>
+                      <p style={{ fontSize: '13px', color: '#A1A1AA', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #2C2C2F', lineHeight: '1.5', paddingLeft: '8px' }}>
                         {item.detail}
                       </p>
                     )}
@@ -554,12 +554,21 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
               </div>
 
               {/* Prospect Journal */}
-              <div style={{ marginTop: '16px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>PROSPECT JOURNAL</span>
+              <div style={{ marginTop: '16px', borderTop: '1px dashed #2C2C2F', paddingTop: '12px' }}>
+                <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>PROSPECT JOURNAL</span>
                 <textarea
                   className="input-field"
                   rows={2}
-                  style={{ marginTop: '6px', fontSize: '12.5px' }}
+                  style={{ 
+                    marginTop: '6px', 
+                    fontSize: '13px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid #2C2C2F',
+                    borderRadius: '0',
+                    padding: '8px 0',
+                    color: '#FFFFFF'
+                  }}
                   placeholder="Scribble notes for future self..."
                   value={journalText}
                   onChange={e => { setJournalText(e.target.value); triggerAutoSave({ journalText: e.target.value }); }}
@@ -587,7 +596,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <div className="glass-panel" style={{ width: '800px', padding: '28px', display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="card-panel" style={{ width: '800px', padding: '28px', display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
             <button 
               onClick={() => setIsPlaybookOpen(false)}
               style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '16px' }}

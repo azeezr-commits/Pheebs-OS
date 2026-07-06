@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { SessionProvider, useSessionEngine } from './core/session-engine/SessionContext';
 import { AnalyzerModule } from './features/business-analyzer/AnalyzerModule';
-import { VaultModule } from './features/practice-vault/VaultModule';
-import { HomeModule } from './features/home-cockpit/HomeModule';
-import { CommandBar } from './features/command-bar/CommandBar';
+import { VaultModule } from './features/brain/VaultModule';
+import { HomeModule } from './features/launch/HomeModule';
+import { CommandBar } from './features/search/CommandBar';
 import { CallOutcomeModal } from './features/feedback-loop/CallOutcomeModal';
-import { ProspectWorkspace } from './features/prospect-workspace/ProspectWorkspace';
+import { ProspectWorkspace } from './features/workspace/ProspectWorkspace';
 import { AnalyticsModule } from './features/analytics/AnalyticsModule';
 import { GrowthModule } from './features/growth/GrowthModule';
 import { CallModeModule } from './features/call-mode/CallModeModule';
-import { CallHudOverlay } from './features/call-hud/CallHudOverlay';
-import { 
-  Home, 
-  History, 
-  Settings,
-  TrendingUp,
-  FolderOpen
-} from 'lucide-react';
+import { CallHudOverlay } from './features/calls/CallHudOverlay';
 import confetti from 'canvas-confetti';
 
 const AEWorkspace: React.FC = () => {
@@ -32,6 +25,20 @@ const AEWorkspace: React.FC = () => {
 
   // Boot loader state
   const [isBooting, setIsBooting] = useState(true);
+
+  // Session list for Workspace Dock
+  const [sessions, setSessions] = useState<any[]>([]);
+
+  const loadSessions = async () => {
+    const list = await manager.listSessions('analyzer');
+    setSessions(list);
+  };
+
+  useEffect(() => {
+    if (!isBooting) {
+      loadSessions();
+    }
+  }, [isBooting, activeTab]);
 
 
   // Synthesize realistic meow sound using Web Audio API
@@ -334,10 +341,10 @@ const AEWorkspace: React.FC = () => {
       
       {/* 1. Left Sidebar Navigation Dock */}
       <aside style={{
-        width: '68px',
+        width: '60px',
         height: '100vh',
-        background: '#0B0B0C',
-        borderRight: '1px solid #1C1C1E',
+        background: '#0F0F10',
+        borderRight: '1px solid #2C2C2F',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -346,22 +353,26 @@ const AEWorkspace: React.FC = () => {
       }}>
         {/* Logo isolated at top */}
         <div style={{ marginBottom: '32px', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-          <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 50 5 L 89 27.5 L 89 72.5 L 50 95 L 11 72.5 L 11 27.5 Z" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M 38 78 C 38 65, 45 42, 50 35 C 53 30.5, 52 26, 48 24 L 52 18 L 57 24 C 58.5 22, 60.5 22, 62 24 L 67 18 L 65.5 27 C 69 33, 67 43, 60 50 C 56 54, 53 58, 55 64 C 57 70, 68 64, 72 72 C 75 78, 62 82, 50 82 C 39 82, 38 80, 38 78 Z" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 2H22L28 8V12L22 18H10V30" stroke="url(#logo_grad_sidebar)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 8H18L21 11V12L18 15H12V8" stroke="url(#logo_grad_sidebar)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <defs>
+              <linearGradient id="logo_grad_sidebar" x1="6" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FFFFFF" />
+                <stop offset="1" stopColor="#71717A" />
+              </linearGradient>
+            </defs>
           </svg>
         </div>
 
         {/* Navigation centered icons */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', flex: 1 }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
           {[
-            { id: 'dashboard', icon: Home },
-            { id: 'workspace', icon: FolderOpen },
-            { id: 'vault', icon: History },
-            { id: 'analytics', icon: TrendingUp },
-            { id: 'settings', icon: Settings }
+            { id: 'dashboard', glyph: '⌂', size: '18px', title: 'Launch' },
+            { id: 'workspace', glyph: '◧', size: '16px', title: 'Workspace' },
+            { id: 'vault', glyph: '🧠', size: '16px', title: 'Brain' },
+            { id: 'settings', glyph: '⚙', size: '17px', title: 'Settings' }
           ].map((item) => {
-            const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
@@ -372,46 +383,104 @@ const AEWorkspace: React.FC = () => {
                   }
                   setActiveTab(item.id as any);
                 }}
+                title={item.title}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  background: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                  width: '32px',
+                  height: '32px',
+                  background: isActive ? '#3B3B40' : 'transparent',
                   border: 'none',
-                  borderRadius: '8px',
-                  color: isActive ? '#FFFFFF' : '#444448',
+                  borderRadius: '50%',
+                  color: isActive ? '#FFFFFF' : '#71717A',
                   cursor: 'pointer',
+                  fontSize: item.size,
+                  lineHeight: 1,
                   position: 'relative',
-                  transition: 'color 150ms ease, background-color 150ms ease'
+                  transition: 'all 0.15s ease'
                 }}
                 onMouseEnter={e => {
-                  if (!isActive) e.currentTarget.style.color = '#8E8E93';
+                  if (!isActive) {
+                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.background = '#202024';
+                  }
                 }}
                 onMouseLeave={e => {
-                  if (!isActive) e.currentTarget.style.color = '#444448';
+                  if (!isActive) {
+                    e.currentTarget.style.color = '#71717A';
+                    e.currentTarget.style.background = 'transparent';
+                  }
                 }}
               >
-                {/* Active indicator dot */}
-                {isActive && (
-                  <span style={{
-                    position: 'absolute',
-                    left: '-14px',
-                    width: '3px',
-                    height: '3px',
-                    borderRadius: '50%',
-                    background: '#FFFFFF'
-                  }} />
-                )}
-                <Icon size={18} />
+                {item.glyph}
               </button>
             );
           })}
         </nav>
 
+        <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', width: '20px', margin: '20px 0' }} />
+
+        {/* Workspace Dock list */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', flex: 1 }}>
+          {sessions.map(s => {
+            const isHot = s.businessName.toLowerCase().includes('tawana');
+            const color = isHot ? '#EF4444' : '#F97316';
+            const letter = s.businessName.charAt(0).toUpperCase();
+            const isActive = activeWorkspaceSessionId === s.id && activeTab === 'workspace';
+
+            return (
+              <button
+                key={s.id}
+                onClick={() => {
+                  setActiveWorkspaceSessionId(s.id);
+                  setActiveTab('workspace');
+                }}
+                title={s.businessName}
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: isActive ? '#3B3B40' : 'transparent',
+                  border: isActive ? `1px solid ${color}` : '1px solid #2C2C2F',
+                  color: isActive ? '#FFFFFF' : '#71717A',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = color;
+                  e.currentTarget.style.color = '#FFFFFF';
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    e.currentTarget.style.borderColor = '#2C2C2F';
+                    e.currentTarget.style.color = '#71717A';
+                  }
+                }}
+              >
+                <span style={{
+                  position: 'absolute',
+                  top: '-1px',
+                  right: '-1px',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: color
+                }} />
+                {letter}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Minimal version tag at the bottom */}
-        <div style={{ fontSize: '9px', color: '#1C1C1E', textAlign: 'center', fontWeight: 600 }}>
+        <div style={{ fontSize: '9px', color: '#3B3B40', textAlign: 'center', fontWeight: 600, marginBottom: '8px' }}>
           v0.7
         </div>
       </aside>
@@ -540,7 +609,7 @@ const AEWorkspace: React.FC = () => {
               <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '24px' }}>
                 Configure your desktop Sales Cockpit parameters.
               </p>
-              <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="card-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <label style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>OUTBOUND DEFAULT STRATEGY</label>
                   <select className="input-field" style={{ marginTop: '6px', appearance: 'none', background: 'rgba(9,9,12,0.8)' }}>

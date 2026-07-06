@@ -41,7 +41,7 @@ export const AnalyticsModule: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', alignItems: 'start' }}>
         
         {/* Card 1: Revenue Scoreboard (Progressive Disclosure) */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>CLOSED REVENUE ARR</span>
@@ -101,7 +101,7 @@ export const AnalyticsModule: React.FC = () => {
         </div>
 
         {/* Card 2: Funnel rates */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
             July Sales Conversion Funnel
           </h3>
@@ -136,7 +136,7 @@ export const AnalyticsModule: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         
         {/* Heatmap */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
             Weekly Conversion Heatmap
           </h3>
@@ -159,7 +159,7 @@ export const AnalyticsModule: React.FC = () => {
         </div>
 
         {/* Activity Trends info */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className="card-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
             Historical Pipeline Trends
           </h3>
