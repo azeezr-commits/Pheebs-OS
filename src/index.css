@@ -1,0 +1,142 @@
+@import './design-system/variables.css';
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Linear & Apple inspired UI elements */
+.glass-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Slightly sharper, less rounded for precision feel */
+  box-shadow: none; /* Quiet luxury - no floating glow shadows */
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.glass-panel:hover {
+  border-color: var(--border-focus);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 14px 18px;
+  transition: all 0.2s ease;
+}
+
+.glass-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-focus);
+}
+
+/* Form controls */
+.input-field {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--border-focus);
+  background: var(--bg-hover);
+}
+
+/* Premium Buttons - Apple Pro style */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 9999px; /* Apple pill style */
+  border: none;
+  background: #FFFFFF;
+  color: #000000;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-hover);
+  opacity: 0.95;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 9999px; /* Apple pill style */
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-focus);
+}
+
+/* Typography Title */
+.title-gradient {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #FFFFFF; /* Remove gradient typography, use solid bold white */
+}
+
+/* Spacers & scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}

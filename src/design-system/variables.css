@@ -1,0 +1,30 @@
+:root {
+  --bg-primary: #0F0F10;
+  --bg-secondary: #0F0F10;
+  --bg-card: #18181B;
+  --bg-hover: #202024;
+  
+  --border-color: #2C2C2F;
+  --border-focus: #3B3B40;
+  
+  --primary: #3B3B40; /* Quiet Graphite Accent */
+  --primary-hover: #4B4B50;
+  --primary-glow: rgba(59, 59, 64, 0.25);
+  
+  --secondary: #FFFFFF; /* High-contrast Solid White */
+  --secondary-hover: #E4E4E7;
+  --secondary-glow: rgba(255, 255, 255, 0.08);
+  
+  --accent: #FFFFFF;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA; /* Muted Apple/Linear Gray */
+  --text-muted: #71717A;
+  
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+
+  --sidebar-width: 250px;
+  --font-title: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
