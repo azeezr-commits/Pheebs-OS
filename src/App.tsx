@@ -8,9 +8,10 @@ import { CallOutcomeModal } from './features/feedback-loop/CallOutcomeModal';
 import { ProspectWorkspace } from './features/workspace/ProspectWorkspace';
 import { AnalyticsModule } from './features/analytics/AnalyticsModule';
 import { GrowthModule } from './features/growth/GrowthModule';
-import { CallModeModule } from './features/call-mode/CallModeModule';
 import { CallHudOverlay } from './features/calls/CallHudOverlay';
+import { CallModeModule } from './features/call-mode/CallModeModule';
 import confetti from 'canvas-confetti';
+import { performAudit } from './features/business-analyzer/analyzerEngine';
 
 const AEWorkspace: React.FC = () => {
   const { manager } = useSessionEngine();
@@ -25,12 +26,25 @@ const AEWorkspace: React.FC = () => {
 
   // Boot loader state
   const [isBooting, setIsBooting] = useState(true);
+  const [interventionOpen, setInterventionOpen] = useState(() => !sessionStorage.getItem('pheebs_intervention_seen'));
 
   // Session list for Workspace Dock
   const [sessions, setSessions] = useState<any[]>([]);
 
   const loadSessions = async () => {
-    const list = await manager.listSessions('analyzer');
+    let list = await manager.listSessions('analyzer');
+    if (list.length === 0) {
+      // Seed default Bright Smile Orthodontics session!
+      const auditResult = await performAudit(
+        'Bright Smile Orthodontics',
+        'brightsmile-example.com',
+        'https://google.com/maps/place/Bright+Smile+Orthodontics',
+        'Dental',
+        'Tawana is the practice coordinator. Talked on the phone, she is interested but requested a proof of drop-out leaks before agreeing to buy.'
+      );
+      const seededSession = await manager.createSession('analyzer', auditResult);
+      list = [seededSession];
+    }
     setSessions(list);
   };
 
@@ -646,6 +660,95 @@ const AEWorkspace: React.FC = () => {
         isOpen={isOutcomeModalOpen} 
         onClose={() => setIsOutcomeModalOpen(false)} 
       />
+
+      {/* Moment of Magic: Strategic Interruption Overlay */}
+      {!isBooting && activeTab === 'dashboard' && interventionOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: '#050508',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Plus Jakarta Sans, sans-serif'
+        }}>
+          <div style={{ maxWidth: '480px', width: '100%', padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div>
+              <span style={{ fontSize: '13px', color: '#71717A', letterSpacing: '0.05em' }}>Good evening.</span>
+              <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '16px 0 24px 0' }} />
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚠️</div>
+              <span style={{ fontSize: '12px', color: '#EF4444', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                CRITICAL BLINDSPOT ALERT
+              </span>
+              <h2 style={{ fontSize: '22px', fontWeight: 400, color: '#FFFFFF', lineHeight: '1.4', marginTop: '6px' }}>
+                Before today's demo...
+              </h2>
+              <p style={{ fontSize: '16px', color: '#A1A1AA', lineHeight: '1.5', marginTop: '12px' }}>
+                You're assuming <strong style={{ color: '#FFFFFF' }}>Tawana</strong> is the decision maker.
+              </p>
+              <p style={{ fontSize: '16px', color: '#EF4444', fontWeight: 500, lineHeight: '1.5', marginTop: '8px' }}>
+                There is no evidence that's true.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+              <button 
+                onClick={() => {
+                  const brightSmile = sessions.find(s => s.businessName.toLowerCase().includes('smile'));
+                  if (brightSmile) {
+                    setPreloadSessionId(brightSmile.id);
+                  }
+                  sessionStorage.setItem('pheebs_intervention_seen', 'true');
+                  setInterventionOpen(false);
+                  setActiveTab('vault');
+                }}
+                style={{
+                  flex: 1,
+                  background: '#EF4444',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '14px 20px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#DC2626'}
+                onMouseLeave={e => e.currentTarget.style.background = '#EF4444'}
+              >
+                Review Blindspot
+              </button>
+              
+              <button 
+                onClick={() => {
+                  sessionStorage.setItem('pheebs_intervention_seen', 'true');
+                  setInterventionOpen(false);
+                }}
+                style={{
+                  background: 'transparent',
+                  color: '#71717A',
+                  border: '1px solid #2C2C2F',
+                  borderRadius: '6px',
+                  padding: '14px 24px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#3B3B40'; e.currentTarget.style.color = '#FFFFFF'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#2C2C2F'; e.currentTarget.style.color = '#71717A'; }}
+              >
+                Ignore
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
