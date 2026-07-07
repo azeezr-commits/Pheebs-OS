@@ -35,11 +35,13 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'Lighthouse speed audit logs',
       'Manual checkout click-stream test'
     ],
-    beliefs: [
+    reasonings: [
       {
-        id: 'belief-1',
-        title: 'Tawana has final purchasing authority.',
-        confidence: 45,
+        id: 'reason-1',
+        understanding: 'We believe your champion (Tawana) can influence the purchase, but probably cannot approve it alone.',
+        status: 'Weakening',
+        changeReason: 'Secondary office manager (Julie) has been silent for 14 days',
+        lastChanged: 'Yesterday',
         evidence: [
           'Practice Coordinator label verified.',
           'Requested proof of drop-out leak.',
@@ -52,22 +54,25 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
         nextQuestion: 'Apart from yourself, who else will be involved in approving this purchase?'
       },
       {
-        id: 'belief-2',
-        title: 'Pricing is the main blocker for this deal.',
-        confidence: 25,
+        id: 'reason-2',
+        understanding: 'We believe operational inertia is the real bottleneck, despite initial cash concern claims.',
+        status: 'Strengthening',
+        changeReason: 'Finance requested checkout friction comparison logs',
+        lastChanged: 'Today',
         evidence: [
-          'Tawana mentioned they are running on a tight operational budget.'
-        ],
-        contradictions: [
           'They currently pay Vagaro subscription + high transaction check-out rates.',
           'Missing call drop-outs cost them an estimated $2,400 monthly in ARR leaks.'
+        ],
+        contradictions: [
+          'Tawana mentioned they are running on a tight operational budget.'
         ],
         nextQuestion: 'If we could prove that missed emergencies are costing you $1,200/mo, would that change how your team evaluates the cost?'
       },
       {
-        id: 'belief-3',
-        title: 'The front-desk team will adopt automated booking setup smoothly.',
-        confidence: 10,
+        id: 'reason-3',
+        understanding: 'We believe front-desk staff will resist setup unless we prove it reduces peak-hour check-out steps.',
+        status: 'Unverified',
+        lastChanged: '3 days ago',
         evidence: [],
         contradictions: [
           'Reviews complain that receptionist is constantly busy checking out patients during peak hours.',
@@ -108,11 +113,13 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'DOM crawler booking check',
       'Google Maps coordinates matching log'
     ],
-    beliefs: [
+    reasonings: [
       {
-        id: 'belief-1',
-        title: 'Older patients will refuse to use digital self-scheduling.',
-        confidence: 65,
+        id: 'reason-1',
+        understanding: 'We believe the practice fears alienating retired patient demographics, creating resistance to self-scheduling.',
+        status: 'Strengthening',
+        changeReason: 'Office manager noted fear of digital self-booking',
+        lastChanged: 'Yesterday',
         evidence: [
           'Office manager noted fear of alienating existing retired patients.'
         ],
@@ -120,17 +127,19 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
           '65% of local booking search traffic in their zip code is on mobile devices.',
           'The widget supports simple one-click phone callbacks as fallbacks.'
         ],
-        nextQuestion: 'What percentage of your new patients are under 45 vs retired?'
+        nextQuestion: 'What percentage of new patients are under 45 vs retired?'
       },
       {
-        id: 'belief-2',
-        title: 'The practice is satisfied with manual email booking requests.',
-        confidence: 30,
+        id: 'reason-2',
+        understanding: 'We believe they are losing emergency leads during weekends but remain unaware of the leakage scope.',
+        status: 'Weakening',
+        changeReason: 'Front desk coordinator claims PDF request forms are sufficient',
+        lastChanged: '2 days ago',
         evidence: [
           'They have kept the printable PDF form download link active for 3 years.'
         ],
         contradictions: [
-          'Two recent negative Google maps reviews complained that weekend toothaches got zero response.'
+          'Two recent 1-star reviews complain that weekend toothaches got zero response.'
         ],
         nextQuestion: 'How many emergency appointment requests do you receive after hours that are left unanswered until Monday morning?'
       }
@@ -184,7 +193,7 @@ export const performAudit = async (
       evidenceUsed: finalEvidence,
       createdAt: new Date().toISOString(),
       
-      beliefs: seedMatched.beliefs || []
+      reasonings: seedMatched.reasonings || []
     };
   }
 
@@ -300,15 +309,16 @@ export const performAudit = async (
     evidenceUsed: evidence.length > 0 ? evidence : ['None. Low confidence report.'],
     createdAt: new Date().toISOString(),
 
-    beliefs: [
+    reasonings: [
       {
-        id: 'belief-1',
-        title: hasPhoneLeak 
-          ? 'Missed calls are a minor inconvenience, not a major revenue leak.' 
+        id: 'reason-1',
+        understanding: hasPhoneLeak 
+          ? 'We believe missed calls are causing immediate lost emergencies, but the front desk treats them as minor inconveniences.' 
           : hasBookingLeak 
-          ? 'Customers are willing to go through registration steps to book appointments.' 
-          : 'The current client intake pipeline is highly optimized.',
-        confidence: 40,
+          ? 'We believe registration steps are causing a 20-30% drop-off in appointments, but clinic admins assume patients complete them.' 
+          : 'We believe the current client intake pipeline is highly optimized, requiring discovery checks.',
+        status: 'Unverified',
+        lastChanged: 'Today',
         evidence: aeNotes ? [`AE manual observation: "${aeNotes}"`] : [],
         contradictions: hasPhoneLeak 
           ? ['Local maps reviews indicate busy lines during checkout peak hours.', 'Hang-ups to busy phone lines typically divert 15% of inbound search leads.']
@@ -322,9 +332,11 @@ export const performAudit = async (
           : 'How do you currently track prospects who visit your booking page but abandon before selecting a time slot?'
       },
       {
-        id: 'belief-2',
-        title: 'The champion has the final purchasing authority to buy our software.',
-        confidence: 30,
+        id: 'reason-2',
+        understanding: 'We believe the operational champion lacks purchase limits, meaning we must identify the financial controller early.',
+        status: 'Weakening',
+        changeReason: 'Direct line goes to receptionist voicemail rather than manager',
+        lastChanged: 'Yesterday',
         evidence: [],
         contradictions: [
           'Budget owner and primary IT manager stakeholders are unidentified.',

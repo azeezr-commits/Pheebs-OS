@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSessionEngine } from '../../core/session-engine/SessionContext';
 import type { Session } from '../../contracts/Session';
-import type { Belief, AEBriefing } from '../../domain/business/types';
+import type { Reasoning, AEBriefing } from '../../domain/business/types';
 import { ArrowLeft } from 'lucide-react';
 
 interface ProspectWorkspaceProps {
@@ -21,7 +21,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Input states for adding evidence/contradictions per belief
+  // Inputs for observations/counter-facts
   const [newEvidenceTexts, setNewEvidenceTexts] = useState<Record<string, string>>({});
   const [newContraTexts, setNewContraTexts] = useState<Record<string, string>>({});
 
@@ -69,50 +69,37 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: '16px' }}>
         <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.05)', borderTopColor: '#7C5CFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <span style={{ color: '#71717A', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>Sourcing case file...</span>
+        <span style={{ color: '#71717A', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>Consulting second mind...</span>
       </div>
     );
   }
 
   const briefing: AEBriefing = session.payload.briefing || session.payload || {};
-  const beliefs: Belief[] = session.payload.beliefs || briefing.beliefs || [];
+  const reasonings: Reasoning[] = session.payload.reasonings || briefing.reasonings || [];
 
-  const handleUpdateBeliefConfidence = (beliefId: string, newConfidence: number) => {
-    const updatedBeliefs = beliefs.map((b) => 
-      b.id === beliefId ? { ...b, confidence: newConfidence } : b
-    );
-    
-    const updatedPayload = {
-      ...session.payload,
-      beliefs: updatedBeliefs,
-      briefing: {
-        ...briefing,
-        beliefs: updatedBeliefs
-      }
-    };
-    
-    setSession({
-      ...session,
-      payload: updatedPayload
-    });
-    
-    triggerAutoSave(updatedPayload);
-  };
-
-  const handleAddEvidence = (beliefId: string) => {
-    const text = newEvidenceTexts[beliefId] || '';
+  const handleAddEvidence = (reasoningId: string) => {
+    const text = newEvidenceTexts[reasoningId] || '';
     if (!text.trim()) return;
 
-    const updatedBeliefs = beliefs.map((b) => 
-      b.id === beliefId ? { ...b, evidence: [...b.evidence, text.trim()] } : b
-    );
+    const updatedReasonings = reasonings.map((r) => {
+      if (r.id === reasoningId) {
+        return {
+          ...r,
+          status: 'Strengthening' as const,
+          changeReason: `Added observation: "${text.trim()}"`,
+          lastChanged: 'Just now',
+          evidence: [...r.evidence, text.trim()]
+        };
+      }
+      return r;
+    });
 
     const updatedPayload = {
       ...session.payload,
-      beliefs: updatedBeliefs,
+      reasonings: updatedReasonings,
       briefing: {
         ...briefing,
-        beliefs: updatedBeliefs
+        reasonings: updatedReasonings
       }
     };
 
@@ -123,26 +110,35 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
 
     setNewEvidenceTexts({
       ...newEvidenceTexts,
-      [beliefId]: ''
+      [reasoningId]: ''
     });
 
     triggerAutoSave(updatedPayload);
   };
 
-  const handleAddContradiction = (beliefId: string) => {
-    const text = newContraTexts[beliefId] || '';
+  const handleAddContradiction = (reasoningId: string) => {
+    const text = newContraTexts[reasoningId] || '';
     if (!text.trim()) return;
 
-    const updatedBeliefs = beliefs.map((b) => 
-      b.id === beliefId ? { ...b, contradictions: [...b.contradictions, text.trim()] } : b
-    );
+    const updatedReasonings = reasonings.map((r) => {
+      if (r.id === reasoningId) {
+        return {
+          ...r,
+          status: 'Weakening' as const,
+          changeReason: `Added warning fact: "${text.trim()}"`,
+          lastChanged: 'Just now',
+          contradictions: [...r.contradictions, text.trim()]
+        };
+      }
+      return r;
+    });
 
     const updatedPayload = {
       ...session.payload,
-      beliefs: updatedBeliefs,
+      reasonings: updatedReasonings,
       briefing: {
         ...briefing,
-        beliefs: updatedBeliefs
+        reasonings: updatedReasonings
       }
     };
 
@@ -153,7 +149,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
 
     setNewContraTexts({
       ...newContraTexts,
-      [beliefId]: ''
+      [reasoningId]: ''
     });
 
     triggerAutoSave(updatedPayload);
@@ -203,102 +199,74 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              {saveStatus === 'saving' ? 'Re-calculating...' : saveStatus === 'saved' ? 'Saved ✓' : 'synchronized'}
-            </span>
-            <span style={{ fontSize: '13px', color: '#FFFFFF', fontWeight: 500 }}>
-              Confidence score: {briefing.confidenceScore}%
+              {saveStatus === 'saving' ? 'Updating understanding...' : saveStatus === 'saved' ? 'Saved ✓' : 'synchronized'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. THE BELIEFS Dossier Flow */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
-        {beliefs.map((belief: Belief) => {
-          // Color based on confidence levels
-          let confidenceColor = '#EF4444'; // Red
-          let confidenceLabel = 'Highly Uncertain';
-          if (belief.confidence >= 75) {
-            confidenceColor = '#22C55E'; // Green
-            confidenceLabel = 'Verified Belief';
-          } else if (belief.confidence >= 40) {
-            confidenceColor = '#F59E0B'; // Orange/Yellow
-            confidenceLabel = 'Unverified Assumption';
+      {/* 2. THE REASONINGS DOSSIER FLOW */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }}>
+        {reasonings.map((r: Reasoning) => {
+          let statusColor = '#EF4444'; // Red
+          let statusLabel = 'Assumption Weakening';
+          if (r.status === 'Strengthening') {
+            statusColor = '#22C55E'; // Green
+            statusLabel = 'Assumption Strengthening';
+          } else if (r.status === 'Unverified') {
+            statusColor = '#71717A'; // Gray
+            statusLabel = 'Unverified Assumption';
           }
 
           return (
             <div 
-              key={belief.id} 
+              key={r.id} 
               style={{ 
                 borderBottom: '1px solid #1C1C1E', 
-                paddingBottom: '40px',
+                paddingBottom: '48px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '20px'
+                gap: '24px'
               }}
             >
-              {/* Belief Title & Confidence Selector */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 500, color: '#FFFFFF', margin: 0 }}>
-                    {belief.title}
-                  </h3>
-                  <span style={{ fontSize: '11px', color: confidenceColor, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {confidenceLabel} ({belief.confidence}%)
-                  </span>
-                </div>
-
-                {/* Interactive confidence selector */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {[10, 25, 50, 75, 90].map((num) => (
-                    <button
-                      key={num}
-                      onClick={() => handleUpdateBeliefConfidence(belief.id, num)}
-                      style={{
-                        background: belief.confidence === num ? '#FFFFFF' : 'transparent',
-                        color: belief.confidence === num ? '#0A0A0B' : '#71717A',
-                        border: '1px solid #2C2C2F',
-                        borderRadius: '4px',
-                        padding: '4px 10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        fontFamily: 'monospace'
-                      }}
-                      onMouseEnter={e => {
-                        if (belief.confidence !== num) {
-                          e.currentTarget.style.borderColor = '#3B3B40';
-                          e.currentTarget.style.color = '#FFFFFF';
-                        }
-                      }}
-                      onMouseLeave={e => {
-                        if (belief.confidence !== num) {
-                          e.currentTarget.style.borderColor = '#2C2C2F';
-                          e.currentTarget.style.color = '#71717A';
-                        }
-                      }}
-                    >
-                      {num}%
-                    </button>
-                  ))}
+              {/* Understanding Header */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Current Understanding
+                </span>
+                <p style={{ fontSize: '20px', fontFamily: 'Outfit, sans-serif', fontWeight: 300, color: '#FFFFFF', margin: 0, lineHeight: '1.4' }}>
+                  {r.understanding}
+                </p>
+                
+                {/* Dynamic Status line without percentage jargon */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', fontSize: '12.5px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: statusColor }} />
+                  <span style={{ color: statusColor, fontWeight: 600 }}>{statusLabel}</span>
+                  {r.changeReason && (
+                    <>
+                      <span style={{ color: '#3B3B40' }}>•</span>
+                      <span style={{ color: '#A1A1AA' }}>
+                        Last changed {r.lastChanged.toLowerCase()} ({r.changeReason})
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Evidence vs Contradictions Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginTop: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
                 
-                {/* Evidence Column */}
+                {/* Why we think this Column */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Evidence (Supporting)
+                    Why we think this
                   </span>
                   
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {belief.evidence.length === 0 ? (
-                      <li style={{ fontSize: '13px', color: '#71717A', fontStyle: 'italic' }}>No supporting evidence found.</li>
+                    {r.evidence.length === 0 ? (
+                      <li style={{ fontSize: '13px', color: '#71717A', fontStyle: 'italic' }}>No supporting details loaded.</li>
                     ) : (
-                      belief.evidence.map((item, idx) => (
+                      r.evidence.map((item, idx) => (
                         <li key={idx} style={{ fontSize: '13.5px', color: '#E4E4E7', display: 'flex', gap: '8px', alignItems: 'flex-start', lineHeight: '1.4' }}>
                           <span style={{ color: '#22C55E' }}>✓</span>
                           <span>{item}</span>
@@ -307,14 +275,14 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                     )}
                   </ul>
 
-                  {/* Add evidence input */}
+                  {/* Share supporting observation input */}
                   <div style={{ marginTop: '4px' }}>
                     <input 
                       type="text" 
-                      placeholder="+ Add supporting observation..."
-                      value={newEvidenceTexts[belief.id] || ''}
-                      onChange={e => setNewEvidenceTexts({ ...newEvidenceTexts, [belief.id]: e.target.value })}
-                      onKeyDown={e => e.key === 'Enter' && handleAddEvidence(belief.id)}
+                      placeholder="+ Share supporting observation..."
+                      value={newEvidenceTexts[r.id] || ''}
+                      onChange={e => setNewEvidenceTexts({ ...newEvidenceTexts, [r.id]: e.target.value })}
+                      onKeyDown={e => e.key === 'Enter' && handleAddEvidence(r.id)}
                       style={{ 
                         width: '100%',
                         background: 'transparent',
@@ -324,7 +292,8 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                         color: '#FFFFFF',
                         padding: '6px 0',
                         outline: 'none',
-                        transition: 'border-color 0.2s'
+                        transition: 'border-color 0.2s',
+                        fontFamily: 'inherit'
                       }}
                       onFocus={e => e.currentTarget.style.borderBottomColor = '#3B3B40'}
                       onBlur={e => e.currentTarget.style.borderBottomColor = '#2C2C2F'}
@@ -332,17 +301,17 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                   </div>
                 </div>
 
-                {/* Contradictions Column */}
+                {/* What could make us wrong Column */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Contradictions (Challenging)
+                    What could make us wrong
                   </span>
 
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {belief.contradictions.length === 0 ? (
-                      <li style={{ fontSize: '13px', color: '#71717A', fontStyle: 'italic' }}>No contradictions found.</li>
+                    {r.contradictions.length === 0 ? (
+                      <li style={{ fontSize: '13px', color: '#71717A', fontStyle: 'italic' }}>No vulnerabilities flagged.</li>
                     ) : (
-                      belief.contradictions.map((item, idx) => (
+                      r.contradictions.map((item, idx) => (
                         <li key={idx} style={{ fontSize: '13.5px', color: '#FCA5A5', display: 'flex', gap: '8px', alignItems: 'flex-start', lineHeight: '1.4' }}>
                           <span style={{ color: '#EF4444' }}>?</span>
                           <span>{item}</span>
@@ -351,14 +320,14 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                     )}
                   </ul>
 
-                  {/* Add contradiction input */}
+                  {/* Share counter-fact or warning input */}
                   <div style={{ marginTop: '4px' }}>
                     <input 
                       type="text" 
-                      placeholder="+ Add challenging counter-fact..."
-                      value={newContraTexts[belief.id] || ''}
-                      onChange={e => setNewContraTexts({ ...newContraTexts, [belief.id]: e.target.value })}
-                      onKeyDown={e => e.key === 'Enter' && handleAddContradiction(belief.id)}
+                      placeholder="+ Share warning or counter-fact..."
+                      value={newContraTexts[r.id] || ''}
+                      onChange={e => setNewContraTexts({ ...newContraTexts, [r.id]: e.target.value })}
+                      onKeyDown={e => e.key === 'Enter' && handleAddContradiction(r.id)}
                       style={{ 
                         width: '100%',
                         background: 'transparent',
@@ -368,7 +337,8 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                         color: '#FFFFFF',
                         padding: '6px 0',
                         outline: 'none',
-                        transition: 'border-color 0.2s'
+                        transition: 'border-color 0.2s',
+                        fontFamily: 'inherit'
                       }}
                       onFocus={e => e.currentTarget.style.borderBottomColor = '#3B3B40'}
                       onBlur={e => e.currentTarget.style.borderBottomColor = '#2C2C2F'}
@@ -378,7 +348,7 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
 
               </div>
 
-              {/* Next Question to update belief */}
+              {/* One thing worth investigating */}
               <div 
                 style={{ 
                   background: 'rgba(34, 197, 94, 0.02)', 
@@ -398,17 +368,17 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
                   marginBottom: '6px',
                   fontWeight: 600
                 }}>
-                  Next Discovery Question (to challenge assumption)
+                  One thing worth investigating
                 </span>
                 <p style={{ 
-                  fontSize: '15px', 
+                  fontSize: '15.5px', 
                   color: '#FFFFFF', 
                   fontStyle: 'italic', 
                   margin: 0, 
                   lineHeight: '1.4',
                   fontWeight: 300
                 }}>
-                  "{belief.nextQuestion}"
+                  "{r.nextQuestion}"
                 </p>
               </div>
 

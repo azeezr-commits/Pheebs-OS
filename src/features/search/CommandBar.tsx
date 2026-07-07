@@ -55,7 +55,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
       } else if (cmd.action === 'upload') {
         alert('Call recording audio upload is locked for Sprint 4. Ready in next release.');
       } else if (cmd.action === 'ask') {
-        alert('AI Coach Chat is loading... Open Home tab to review dynamic coach prompts.');
+        alert('Coach Chat is loading... Open Home tab to review dynamic coach prompts.');
       } else {
         setActiveTab(cmd.action as any);
       }
@@ -108,7 +108,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
     { id: 'c-practice', name: 'Practice Pricing', desc: 'Duolingo-style pricing objection drill', icon: <Target size={16} />, type: 'tab', action: 'practice' },
     { id: 'c-lost', name: 'Show Lost Deals', desc: 'View objection reasons in Obsidian notes', icon: <History size={16} />, type: 'tab', action: 'vault-lost' },
     { id: 'c-upload', name: 'Upload Call Recording', desc: 'Analyze MP3/WAV audio for coach feedback', icon: <History size={16} />, type: 'tab', action: 'upload' },
-    { id: 'c-ask', name: 'Ask Pheebs', desc: 'Chat with your AI coach about deal objection handling', icon: <Brain size={16} />, type: 'tab', action: 'ask' },
+    { id: 'c-ask', name: 'Ask Pheebs', desc: 'Collaborate with your sales partner about deal objections', icon: <Brain size={16} />, type: 'tab', action: 'ask' },
     { id: 'c-settings', name: 'Settings Options', desc: 'Configure AE cockpit thresholds', icon: <Settings size={16} />, type: 'tab', action: 'settings' }
   ];
 

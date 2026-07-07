@@ -1,7 +1,9 @@
-export interface Belief {
+export interface Reasoning {
   id: string;
-  title: string;
-  confidence: number;
+  understanding: string;
+  status: 'Strengthening' | 'Weakening' | 'Unverified';
+  changeReason?: string;
+  lastChanged: string;
   evidence: string[];
   contradictions: string[];
   nextQuestion: string;
@@ -26,5 +28,5 @@ export interface AEBriefing {
   createdAt: string;
 
   // Beliefs-based reasoning engine properties
-  beliefs?: Belief[];
+  reasonings?: Reasoning[];
 }
