@@ -4,17 +4,15 @@ import type { Session } from '../../contracts/Session';
 import { ProspectWorkspace } from '../workspace/ProspectWorkspace';
 
 interface VaultModuleProps {
-  setActiveTab: (tab: 'dashboard' | 'analyzer' | 'outreach' | 'practice' | 'vault' | 'settings' | 'workspace') => void;
+  setActiveTab: (tab: 'dashboard' | 'analyzer' | 'vault' | 'settings') => void;
   preloadedSessionId?: string | null;
   onClearPreload?: () => void;
-  onSelectSession?: (sessionId: string) => void;
 }
 
 export const VaultModule: React.FC<VaultModuleProps> = ({ 
   setActiveTab: _setActiveTab, 
   preloadedSessionId, 
-  onClearPreload,
-  onSelectSession: _onSelectSession
+  onClearPreload
 }) => {
   const { manager } = useSessionEngine();
   const [sessions, setSessions] = useState<Session[]>([]);

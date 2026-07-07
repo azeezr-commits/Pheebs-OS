@@ -16,7 +16,7 @@ import {
 interface CommandBarProps {
   isOpen: boolean;
   onClose: () => void;
-  setActiveTab: (tab: 'dashboard' | 'analyzer' | 'vault' | 'settings' | 'workspace') => void;
+  setActiveTab: (tab: 'dashboard' | 'analyzer' | 'vault' | 'settings') => void;
   onSelectSession: (sessionId: string) => void;
 }
 

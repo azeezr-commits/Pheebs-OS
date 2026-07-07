@@ -5,17 +5,13 @@ import { VaultModule } from './features/brain/VaultModule';
 import { HomeModule } from './features/launch/HomeModule';
 import { CommandBar } from './features/search/CommandBar';
 import { CallOutcomeModal } from './features/feedback-loop/CallOutcomeModal';
-import { ProspectWorkspace } from './features/workspace/ProspectWorkspace';
-import { AnalyticsModule } from './features/analytics/AnalyticsModule';
-import { GrowthModule } from './features/growth/GrowthModule';
 import { CallHudOverlay } from './features/calls/CallHudOverlay';
-import { CallModeModule } from './features/call-mode/CallModeModule';
 import confetti from 'canvas-confetti';
 import { performAudit } from './features/business-analyzer/analyzerEngine';
 
 const AEWorkspace: React.FC = () => {
   const { manager } = useSessionEngine();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'analyzer' | 'vault' | 'settings' | 'workspace' | 'analytics' | 'growth' | 'calls'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analyzer' | 'vault' | 'settings'>('dashboard');
   const [preloadSessionId, setPreloadSessionId] = useState<string | null>(null);
   const [activeWorkspaceSessionId, setActiveWorkspaceSessionId] = useState<string | null>(null);
   const [initialSearchName, setInitialSearchName] = useState('');
@@ -164,8 +160,7 @@ const AEWorkspace: React.FC = () => {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center' }}>
           {[
             { id: 'dashboard', glyph: '⌂', size: '18px', title: 'Launch' },
-            { id: 'workspace', glyph: '◧', size: '16px', title: 'Workspace' },
-            { id: 'vault', glyph: '🧠', size: '16px', title: 'Brain' },
+            { id: 'vault', glyph: '🧠', size: '16px', title: 'The Brain' },
             { id: 'settings', glyph: '⚙', size: '17px', title: 'Settings' }
           ].map((item) => {
             const isActive = activeTab === item.id;
@@ -222,14 +217,15 @@ const AEWorkspace: React.FC = () => {
             const isHot = s.businessName.toLowerCase().includes('tawana');
             const color = isHot ? '#EF4444' : '#F97316';
             const letter = s.businessName.charAt(0).toUpperCase();
-            const isActive = activeWorkspaceSessionId === s.id && activeTab === 'workspace';
+            const isActive = activeWorkspaceSessionId === s.id && activeTab === 'vault';
 
             return (
               <button
                 key={s.id}
                 onClick={() => {
                   setActiveWorkspaceSessionId(s.id);
-                  setActiveTab('workspace');
+                  setPreloadSessionId(s.id);
+                  setActiveTab('vault');
                 }}
                 title={s.businessName}
                 style={{
@@ -340,7 +336,8 @@ const AEWorkspace: React.FC = () => {
             <HomeModule 
               onOpenOutreach={(sessionId) => {
                 setActiveWorkspaceSessionId(sessionId);
-                setActiveTab('workspace');
+                setPreloadSessionId(sessionId);
+                setActiveTab('vault');
               }}
               onStartAnalysis={(name) => {
                 setInitialSearchName(name);
@@ -356,30 +353,10 @@ const AEWorkspace: React.FC = () => {
               onClearInitialSearch={() => setInitialSearchName('')}
               onOpenOutreach={(sessionId: string) => {
                 setActiveWorkspaceSessionId(sessionId);
-                setActiveTab('workspace');
+                setPreloadSessionId(sessionId);
+                setActiveTab('vault');
               }} 
             />
-          )}
-
-          {activeTab === 'workspace' && (
-            activeWorkspaceSessionId ? (
-              <ProspectWorkspace 
-                sessionId={activeWorkspaceSessionId} 
-                onBack={() => setActiveTab('dashboard')}
-                onStartCall={handleStartCall}
-              />
-            ) : (
-              <div style={{ maxWidth: '500px', margin: '60px auto', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ fontSize: '48px' }}>📂</div>
-                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>No Active Workspace</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14.5px' }}>
-                  Please select a prospect from your Command Center priorities list or click their dot status in the Workspace Dock to launch their cockpit.
-                </p>
-                <button onClick={() => setActiveTab('dashboard')} className="btn-primary" style={{ alignSelf: 'center' }}>
-                  Go to Command Center
-                </button>
-              </div>
-            )
           )}
 
           {activeTab === 'vault' && (
@@ -387,16 +364,8 @@ const AEWorkspace: React.FC = () => {
               setActiveTab={setActiveTab as any} 
               preloadedSessionId={preloadSessionId}
               onClearPreload={() => setPreloadSessionId(null)}
-              onSelectSession={(sessionId) => {
-                setActiveWorkspaceSessionId(sessionId);
-                setActiveTab('workspace');
-              }}
             />
           )}
-
-          {activeTab === 'analytics' && <AnalyticsModule />}
-          {activeTab === 'growth' && <GrowthModule />}
-          {activeTab === 'calls' && <CallModeModule />}
 
           {activeTab === 'settings' && (
             <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -426,7 +395,8 @@ const AEWorkspace: React.FC = () => {
         setActiveTab={setActiveTab}
         onSelectSession={(sessionId) => {
           setActiveWorkspaceSessionId(sessionId);
-          setActiveTab('workspace');
+          setPreloadSessionId(sessionId);
+          setActiveTab('vault');
         }}
       />
 
