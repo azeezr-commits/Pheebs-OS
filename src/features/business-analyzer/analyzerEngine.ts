@@ -34,7 +34,31 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'Google Maps listing metadata',
       'Lighthouse speed audit logs',
       'Manual checkout click-stream test'
-    ]
+    ],
+    brainKnowns: [
+      'Two discovery interactions completed (Intro call & follow-up).',
+      'Tawana (Practice Coordinator) is the primary internal sponsor/champion.',
+      'Using Vagaro for online booking.',
+      'Active Google Business Profile with 4.2 average rating.',
+      'Confirmed patient checkout drop-out rate sits around 18-20%.'
+    ],
+    brainUnknowns: [
+      'Who is the ultimate financial decision maker/budget owner?',
+      'Why has the secondary office manager (Julie) been silent for 14 days?',
+      'Is there an incumbent software agreement blocking change?',
+      'Are they satisfied with Vagaro\'s billing reconciliation?'
+    ],
+    brainThinkingExplanation: 'The buyer is highly engaged but internal approval pathways are unverified, possibly slowing decision speeds.',
+    brainThinkingEvidence: [
+      'Replied to the visibility audit report within two hours.',
+      'Added the practice office manager to the Tuesday calendar invite.'
+    ],
+    brainThinkingMissing: [
+      'Budget constraints or pricing objections have not been brought up.',
+      'Incumbent vendor contract term details are unknown.'
+    ],
+    brainThinkingInvestigation: 'Ask who else needs to review the integration checklist before procurement signs off.',
+    brainNextQuestion: 'Apart from yourself, who else will be involved in approving this purchase?'
   },
   'evergreendental': {
     businessName: 'Evergreen Dental',
@@ -66,7 +90,26 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'G2 review scrapes',
       'DOM crawler booking check',
       'Google Maps coordinates matching log'
-    ]
+    ],
+    brainKnowns: [
+      'Relies on PDF print-and-scan appointment request forms.',
+      'Emergency callers are leaking to local competitors during weekends.',
+      'Google Maps coordinates guide patients to the back alley instead of front.'
+    ],
+    brainUnknowns: [
+      'Is there an internal receptionist resisting transition to digital scheduling?',
+      'Who has the authority to edit the Google Maps coordinate pinning?',
+      'What calendar system is used internally (e.g. Dentrix, Open Dental)?'
+    ],
+    brainThinkingExplanation: 'The practice suffers from severe operational leaks but holds inertia against automated widgets due to patient demographic concerns.',
+    brainThinkingEvidence: [
+      'Office manager expressed worry that older patients won\'t use self-booking.'
+    ],
+    brainThinkingMissing: [
+      'Proportion of elderly vs young patients has not been analyzed.'
+    ],
+    brainThinkingInvestigation: 'Demonstrate how the automated widget is optimized with large font compatibility and optional click-to-call fallbacks.',
+    brainNextQuestion: 'What percentage of your current patient base calls on weekends for emergency treatment?'
   }
 };
 
@@ -114,7 +157,22 @@ export const performAudit = async (
       recommendedAnchor: seedMatched.recommendedAnchor || '',
       confidenceScore: seedMatched.confidenceScore || 90,
       evidenceUsed: finalEvidence,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      
+      // Seeded Brain properties
+      brainKnowns: seedMatched.brainKnowns || [
+        'Domain registered and active.',
+        'Initial local search profile verified.'
+      ],
+      brainUnknowns: seedMatched.brainUnknowns || [
+        'Who is the primary business owner contact?',
+        'What scheduling software are they using?'
+      ],
+      brainThinkingExplanation: seedMatched.brainThinkingExplanation || 'No structured observation has been parsed yet.',
+      brainThinkingEvidence: seedMatched.brainThinkingEvidence || [],
+      brainThinkingMissing: seedMatched.brainThinkingMissing || [],
+      brainThinkingInvestigation: seedMatched.brainThinkingInvestigation || 'Log call details or run audits to compile reasoning.',
+      brainNextQuestion: seedMatched.brainNextQuestion || 'How are you currently handling after-hours appointment requests?'
     };
   }
 
@@ -228,6 +286,38 @@ export const performAudit = async (
     recommendedAnchor: anchor,
     confidenceScore: confidence,
     evidenceUsed: evidence.length > 0 ? evidence : ['None. Low confidence report.'],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+
+    // Dynamic fallback Brain properties based on leak checks
+    brainKnowns: [
+      url ? `Domain check: host "${url}" is active.` : 'Domain is unregistered.',
+      gpbUrl ? `GBP map coordinates verified.` : 'No maps link supplied.',
+      aeNotes ? `Manual observation noted: "${aeNotes}"` : 'No manual notes added.'
+    ],
+    brainUnknowns: [
+      'Who is the ultimate decision maker / owner?',
+      'Are they tied to long-term CRM/Vagaro software agreements?',
+      'Is there secondary staff resistance to automated booking widgets?'
+    ],
+    brainThinkingExplanation: hasPhoneLeak 
+      ? 'The buyer suffers from receptionist busy line leakage, making them highly receptive to immediate phone line speed tests.' 
+      : hasBookingLeak 
+      ? 'The buyer has booking checkout friction, making them highly receptive to a demo of our 2-click booking links.'
+      : 'Digital leaks are unverified, requiring discovery questions to pinpoint operations.',
+    brainThinkingEvidence: aeNotes ? [`Manual observation: "${aeNotes}"`] : [],
+    brainThinkingMissing: [
+      'Average client lifetime transaction value is unverified.',
+      'Pricing objections have not been addressed.'
+    ],
+    brainThinkingInvestigation: hasPhoneLeak 
+      ? 'Demonstrate our automated missed call text-back assistant during the call.'
+      : hasBookingLeak
+      ? 'Show a side-by-side click test comparing our booking link vs their current funnel.'
+      : 'Ask discovery questions to check how many monthly web visitors they receive.',
+    brainNextQuestion: hasPhoneLeak
+      ? 'What happens when a new lead calls while your receptionists are checking out clients?'
+      : hasBookingLeak
+      ? 'What is the current drop-off rate on your registration forms before bookings are finalized?'
+      : 'Apart from yourself, who else will be involved in approving this purchase?'
   };
 };

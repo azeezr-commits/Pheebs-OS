@@ -15,4 +15,13 @@ export interface AEBriefing {
   confidenceScore: number;
   evidenceUsed: string[];
   createdAt: string;
+
+  // Brain v0.1 properties
+  brainKnowns?: string[];
+  brainUnknowns?: string[];
+  brainThinkingExplanation?: string;
+  brainThinkingEvidence?: string[];
+  brainThinkingMissing?: string[];
+  brainThinkingInvestigation?: string;
+  brainNextQuestion?: string;
 }
