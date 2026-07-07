@@ -79,11 +79,7 @@ const AEWorkspace: React.FC = () => {
       }
       localStorage.setItem('pheebs_outcome_stats', JSON.stringify(stats));
 
-      // Award XP
-      const savedXp = localStorage.getItem('pheebs_sales_xp');
-      const currentXp = savedXp ? parseInt(savedXp, 10) : 3420;
-      const earned = outcome === 'Won' ? 500 : 25;
-      localStorage.setItem('pheebs_sales_xp', (currentXp + earned).toString());
+
 
       // Log call to active session logs
       if (activeWorkspaceSessionId) {
@@ -416,13 +412,7 @@ const AEWorkspace: React.FC = () => {
                     <option>Direct Pitch / Case Study Hook</option>
                   </select>
                 </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700 }}>Enable Game Badges</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Show XP rewards for completed cold call drills.</div>
-                  </div>
-                  <input type="checkbox" defaultChecked style={{ accentColor: 'var(--primary)', width: '18px', height: '18px' }} />
-                </div>
+
               </div>
             </div>
           )}

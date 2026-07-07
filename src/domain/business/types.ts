@@ -1,3 +1,12 @@
+export interface Belief {
+  id: string;
+  title: string;
+  confidence: number;
+  evidence: string[];
+  contradictions: string[];
+  nextQuestion: string;
+}
+
 export interface AEBriefing {
   id: string;
   businessName: string;
@@ -16,12 +25,6 @@ export interface AEBriefing {
   evidenceUsed: string[];
   createdAt: string;
 
-  // Brain v0.1 properties
-  brainKnowns?: string[];
-  brainUnknowns?: string[];
-  brainThinkingExplanation?: string;
-  brainThinkingEvidence?: string[];
-  brainThinkingMissing?: string[];
-  brainThinkingInvestigation?: string;
-  brainNextQuestion?: string;
+  // Beliefs-based reasoning engine properties
+  beliefs?: Belief[];
 }

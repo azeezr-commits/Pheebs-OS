@@ -35,30 +35,47 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'Lighthouse speed audit logs',
       'Manual checkout click-stream test'
     ],
-    brainKnowns: [
-      'Two discovery interactions completed (Intro call & follow-up).',
-      'Tawana (Practice Coordinator) is the primary internal sponsor/champion.',
-      'Using Vagaro for online booking.',
-      'Active Google Business Profile with 4.2 average rating.',
-      'Confirmed patient checkout drop-out rate sits around 18-20%.'
-    ],
-    brainUnknowns: [
-      'Who is the ultimate financial decision maker/budget owner?',
-      'Why has the secondary office manager (Julie) been silent for 14 days?',
-      'Is there an incumbent software agreement blocking change?',
-      'Are they satisfied with Vagaro\'s billing reconciliation?'
-    ],
-    brainThinkingExplanation: 'The buyer is highly engaged but internal approval pathways are unverified, possibly slowing decision speeds.',
-    brainThinkingEvidence: [
-      'Replied to the visibility audit report within two hours.',
-      'Added the practice office manager to the Tuesday calendar invite.'
-    ],
-    brainThinkingMissing: [
-      'Budget constraints or pricing objections have not been brought up.',
-      'Incumbent vendor contract term details are unknown.'
-    ],
-    brainThinkingInvestigation: 'Ask who else needs to review the integration checklist before procurement signs off.',
-    brainNextQuestion: 'Apart from yourself, who else will be involved in approving this purchase?'
+    beliefs: [
+      {
+        id: 'belief-1',
+        title: 'Tawana has final purchasing authority.',
+        confidence: 45,
+        evidence: [
+          'Practice Coordinator label verified.',
+          'Requested proof of drop-out leak.',
+          'Schedule-confirmed the Tuesday demo.'
+        ],
+        contradictions: [
+          'Secondary office manager (Julie) has been silent for 14 days.',
+          'No confirmation that she controls capital budget approvals.'
+        ],
+        nextQuestion: 'Apart from yourself, who else will be involved in approving this purchase?'
+      },
+      {
+        id: 'belief-2',
+        title: 'Pricing is the main blocker for this deal.',
+        confidence: 25,
+        evidence: [
+          'Tawana mentioned they are running on a tight operational budget.'
+        ],
+        contradictions: [
+          'They currently pay Vagaro subscription + high transaction check-out rates.',
+          'Missing call drop-outs cost them an estimated $2,400 monthly in ARR leaks.'
+        ],
+        nextQuestion: 'If we could prove that missed emergencies are costing you $1,200/mo, would that change how your team evaluates the cost?'
+      },
+      {
+        id: 'belief-3',
+        title: 'The front-desk team will adopt automated booking setup smoothly.',
+        confidence: 10,
+        evidence: [],
+        contradictions: [
+          'Reviews complain that receptionist is constantly busy checking out patients during peak hours.',
+          'Staff may reject any new tool that adds technical complexity or operational drag.'
+        ],
+        nextQuestion: 'Who on your team handles checkout flow day-to-day, and how would they react to a self-booking assistant?'
+      }
+    ]
   },
   'evergreendental': {
     businessName: 'Evergreen Dental',
@@ -91,25 +108,33 @@ const SEED_PROFILES: Record<string, Partial<AEBriefing>> = {
       'DOM crawler booking check',
       'Google Maps coordinates matching log'
     ],
-    brainKnowns: [
-      'Relies on PDF print-and-scan appointment request forms.',
-      'Emergency callers are leaking to local competitors during weekends.',
-      'Google Maps coordinates guide patients to the back alley instead of front.'
-    ],
-    brainUnknowns: [
-      'Is there an internal receptionist resisting transition to digital scheduling?',
-      'Who has the authority to edit the Google Maps coordinate pinning?',
-      'What calendar system is used internally (e.g. Dentrix, Open Dental)?'
-    ],
-    brainThinkingExplanation: 'The practice suffers from severe operational leaks but holds inertia against automated widgets due to patient demographic concerns.',
-    brainThinkingEvidence: [
-      'Office manager expressed worry that older patients won\'t use self-booking.'
-    ],
-    brainThinkingMissing: [
-      'Proportion of elderly vs young patients has not been analyzed.'
-    ],
-    brainThinkingInvestigation: 'Demonstrate how the automated widget is optimized with large font compatibility and optional click-to-call fallbacks.',
-    brainNextQuestion: 'What percentage of your current patient base calls on weekends for emergency treatment?'
+    beliefs: [
+      {
+        id: 'belief-1',
+        title: 'Older patients will refuse to use digital self-scheduling.',
+        confidence: 65,
+        evidence: [
+          'Office manager noted fear of alienating existing retired patients.'
+        ],
+        contradictions: [
+          '65% of local booking search traffic in their zip code is on mobile devices.',
+          'The widget supports simple one-click phone callbacks as fallbacks.'
+        ],
+        nextQuestion: 'What percentage of your new patients are under 45 vs retired?'
+      },
+      {
+        id: 'belief-2',
+        title: 'The practice is satisfied with manual email booking requests.',
+        confidence: 30,
+        evidence: [
+          'They have kept the printable PDF form download link active for 3 years.'
+        ],
+        contradictions: [
+          'Two recent negative Google maps reviews complained that weekend toothaches got zero response.'
+        ],
+        nextQuestion: 'How many emergency appointment requests do you receive after hours that are left unanswered until Monday morning?'
+      }
+    ]
   }
 };
 
@@ -159,20 +184,7 @@ export const performAudit = async (
       evidenceUsed: finalEvidence,
       createdAt: new Date().toISOString(),
       
-      // Seeded Brain properties
-      brainKnowns: seedMatched.brainKnowns || [
-        'Domain registered and active.',
-        'Initial local search profile verified.'
-      ],
-      brainUnknowns: seedMatched.brainUnknowns || [
-        'Who is the primary business owner contact?',
-        'What scheduling software are they using?'
-      ],
-      brainThinkingExplanation: seedMatched.brainThinkingExplanation || 'No structured observation has been parsed yet.',
-      brainThinkingEvidence: seedMatched.brainThinkingEvidence || [],
-      brainThinkingMissing: seedMatched.brainThinkingMissing || [],
-      brainThinkingInvestigation: seedMatched.brainThinkingInvestigation || 'Log call details or run audits to compile reasoning.',
-      brainNextQuestion: seedMatched.brainNextQuestion || 'How are you currently handling after-hours appointment requests?'
+      beliefs: seedMatched.beliefs || []
     };
   }
 
@@ -288,36 +300,38 @@ export const performAudit = async (
     evidenceUsed: evidence.length > 0 ? evidence : ['None. Low confidence report.'],
     createdAt: new Date().toISOString(),
 
-    // Dynamic fallback Brain properties based on leak checks
-    brainKnowns: [
-      url ? `Domain check: host "${url}" is active.` : 'Domain is unregistered.',
-      gpbUrl ? `GBP map coordinates verified.` : 'No maps link supplied.',
-      aeNotes ? `Manual observation noted: "${aeNotes}"` : 'No manual notes added.'
-    ],
-    brainUnknowns: [
-      'Who is the ultimate decision maker / owner?',
-      'Are they tied to long-term CRM/Vagaro software agreements?',
-      'Is there secondary staff resistance to automated booking widgets?'
-    ],
-    brainThinkingExplanation: hasPhoneLeak 
-      ? 'The buyer suffers from receptionist busy line leakage, making them highly receptive to immediate phone line speed tests.' 
-      : hasBookingLeak 
-      ? 'The buyer has booking checkout friction, making them highly receptive to a demo of our 2-click booking links.'
-      : 'Digital leaks are unverified, requiring discovery questions to pinpoint operations.',
-    brainThinkingEvidence: aeNotes ? [`Manual observation: "${aeNotes}"`] : [],
-    brainThinkingMissing: [
-      'Average client lifetime transaction value is unverified.',
-      'Pricing objections have not been addressed.'
-    ],
-    brainThinkingInvestigation: hasPhoneLeak 
-      ? 'Demonstrate our automated missed call text-back assistant during the call.'
-      : hasBookingLeak
-      ? 'Show a side-by-side click test comparing our booking link vs their current funnel.'
-      : 'Ask discovery questions to check how many monthly web visitors they receive.',
-    brainNextQuestion: hasPhoneLeak
-      ? 'What happens when a new lead calls while your receptionists are checking out clients?'
-      : hasBookingLeak
-      ? 'What is the current drop-off rate on your registration forms before bookings are finalized?'
-      : 'Apart from yourself, who else will be involved in approving this purchase?'
+    beliefs: [
+      {
+        id: 'belief-1',
+        title: hasPhoneLeak 
+          ? 'Missed calls are a minor inconvenience, not a major revenue leak.' 
+          : hasBookingLeak 
+          ? 'Customers are willing to go through registration steps to book appointments.' 
+          : 'The current client intake pipeline is highly optimized.',
+        confidence: 40,
+        evidence: aeNotes ? [`AE manual observation: "${aeNotes}"`] : [],
+        contradictions: hasPhoneLeak 
+          ? ['Local maps reviews indicate busy lines during checkout peak hours.', 'Hang-ups to busy phone lines typically divert 15% of inbound search leads.']
+          : hasBookingLeak 
+          ? ['Registration-forced checkout funnels leak up to 20-30% of website traffic before final scheduling.']
+          : ['No automated missed-call back triggers detected.'],
+        nextQuestion: hasPhoneLeak 
+          ? 'What happens when a new lead calls while your receptionists are checking out clients?'
+          : hasBookingLeak 
+          ? 'What is the drop-off rate on your registration forms before bookings are finalized?'
+          : 'How do you currently track prospects who visit your booking page but abandon before selecting a time slot?'
+      },
+      {
+        id: 'belief-2',
+        title: 'The champion has the final purchasing authority to buy our software.',
+        confidence: 30,
+        evidence: [],
+        contradictions: [
+          'Budget owner and primary IT manager stakeholders are unidentified.',
+          'Operational front-desk coordinators may lack capital sign-off limits.'
+        ],
+        nextQuestion: 'Apart from yourself, who else will be involved in approving this purchase?'
+      }
+    ]
   };
 };
