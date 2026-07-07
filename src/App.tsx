@@ -23,9 +23,6 @@ const AEWorkspace: React.FC = () => {
   // Overlay states
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
-
-  // Boot loader state
-  const [isBooting, setIsBooting] = useState(true);
   const [interventionOpen, setInterventionOpen] = useState(() => !sessionStorage.getItem('pheebs_intervention_seen'));
 
   // Session list for Workspace Dock
@@ -49,78 +46,8 @@ const AEWorkspace: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isBooting) {
-      loadSessions();
-    }
-  }, [isBooting, activeTab]);
-
-
-  // Synthesize realistic meow sound using Web Audio API
-  const playMeowSound = () => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      
-      const osc = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.type = 'triangle';
-      osc2.type = 'sawtooth';
-      
-      // Detuned frequencies for dynamic nasal timbre
-      osc.frequency.setValueAtTime(390, ctx.currentTime);
-      osc2.frequency.setValueAtTime(396, ctx.currentTime);
-      
-      // Pitch sweeps: m -> ee -> o -> w
-      osc.frequency.exponentialRampToValueAtTime(740, ctx.currentTime + 0.16);
-      osc2.frequency.exponentialRampToValueAtTime(746, ctx.currentTime + 0.16);
-      
-      osc.frequency.exponentialRampToValueAtTime(480, ctx.currentTime + 0.45);
-      osc2.frequency.exponentialRampToValueAtTime(486, ctx.currentTime + 0.45);
-      
-      // Gain envelope
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.08);
-      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.22);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-      
-      // Lowpass filter to smooth audio
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1400, ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.45);
-      
-      osc.connect(gain);
-      osc2.connect(gain);
-      gain.connect(filter);
-      filter.connect(ctx.destination);
-      
-      osc.start();
-      osc2.start();
-      osc.stop(ctx.currentTime + 0.55);
-      osc2.stop(ctx.currentTime + 0.55);
-    } catch (e) {
-      console.error("Synthesizer Error:", e);
-    }
-  };
-
-  useEffect(() => {
-    // Play meow sound right as the cat shape closes and the text starts fading in
-    const soundTimer = setTimeout(() => {
-      playMeowSound();
-    }, 2000);
-
-    const timer = setTimeout(() => {
-      setIsBooting(false);
-    }, 4800);
-    
-    return () => {
-      clearTimeout(soundTimer);
-      clearTimeout(timer);
-    };
-  }, []);
+    loadSessions();
+  }, [activeTab]);
 
   // Call HUD battle mode states
   const [inCallMode, setInCallMode] = useState(false);
@@ -201,33 +128,6 @@ const AEWorkspace: React.FC = () => {
     );
   }
 
-  const bootLoaderStyles = `
-    @keyframes drawHexagonPath {
-      from { stroke-dashoffset: 280; }
-      to { stroke-dashoffset: 0; }
-    }
-    @keyframes drawLogoPath {
-      from { stroke-dashoffset: 350; }
-      to { stroke-dashoffset: 0; }
-    }
-    @keyframes fadeInEyes {
-      0% { opacity: 0; transform: scale(0.3); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes pulseGlowLogo {
-      0%, 100% { filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.25)); }
-      50% { filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
-    }
-    @keyframes fadeInTextGroup {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes blinkTagline {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-  `;
-
   return (
     <div style={{
       display: 'flex',
@@ -237,121 +137,6 @@ const AEWorkspace: React.FC = () => {
       color: '#FFFFFF',
       fontFamily: 'Plus Jakarta Sans, sans-serif'
     }}>
-      <style>{bootLoaderStyles}</style>
-
-      {/* Fullscreen customized boot sequence */}
-      {isBooting && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: '#050508',
-          zIndex: 9999999,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '28px',
-          fontFamily: 'Outfit, sans-serif'
-        }}>
-          {/* Logo draw with eyes popping first */}
-          <div style={{
-            animation: 'pulseGlowLogo 2s ease-in-out infinite alternate 2.8s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Outer Hexagon */}
-              <path 
-                d="M 50 5 L 89 27.5 L 89 72.5 L 50 95 L 11 72.5 L 11 27.5 Z" 
-                stroke="#F59E0B" 
-                strokeWidth="3" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeDasharray="280"
-                strokeDashoffset="280"
-                style={{
-                  animation: 'drawHexagonPath 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards'
-                }}
-              />
-              {/* Cat Outline */}
-              <path 
-                d="M 38 78 C 38 65, 45 42, 50 35 C 53 30.5, 52 26, 48 24 L 52 18 L 57 24 C 58.5 22, 60.5 22, 62 24 L 67 18 L 65.5 27 C 69 33, 67 43, 60 50 C 56 54, 53 58, 55 64 C 57 70, 68 64, 72 72 C 75 78, 62 82, 50 82 C 39 82, 38 80, 38 78 Z" 
-                stroke="#F59E0B" 
-                strokeWidth="3" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeDasharray="350"
-                strokeDashoffset="350"
-                style={{
-                  animation: 'drawLogoPath 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.3s forwards'
-                }}
-              />
-              {/* Eye Left */}
-              <circle 
-                cx="53" 
-                cy="25.5" 
-                r="1.7" 
-                fill="#F59E0B" 
-                style={{
-                  opacity: 0,
-                  transformOrigin: '53px 25.5px',
-                  animation: 'fadeInEyes 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards'
-                }}
-              />
-              {/* Eye Right */}
-              <circle 
-                cx="60" 
-                cy="25.5" 
-                r="1.7" 
-                fill="#F59E0B" 
-                style={{
-                  opacity: 0,
-                  transformOrigin: '60px 25.5px',
-                  animation: 'fadeInEyes 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards'
-                }}
-              />
-            </svg>
-          </div>
-
-          {/* Text Group */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            opacity: 0,
-            animation: 'fadeInTextGroup 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.4s forwards'
-          }}>
-            <div style={{
-              fontSize: '24px',
-              fontFamily: 'Outfit, sans-serif',
-              fontWeight: 300,
-              letterSpacing: '0.12em',
-              color: '#F5F5F4',
-              textTransform: 'lowercase'
-            }}>
-              <span style={{ textTransform: 'capitalize' }}>P</span>heebs os
-            </div>
-            
-            <div style={{
-              fontSize: '11px',
-              fontFamily: 'Plus Jakarta Sans, sans-serif',
-              fontWeight: 600,
-              letterSpacing: '0.18em',
-              color: '#F59E0B',
-              textTransform: 'uppercase',
-              animation: 'blinkTagline 1.6s ease-in-out infinite 3.2s',
-              opacity: 0.8
-            }}>
-              Meow meow Revenue master
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* 1. Left Sidebar Navigation Dock */}
       <aside style={{
@@ -662,7 +447,7 @@ const AEWorkspace: React.FC = () => {
       />
 
       {/* Moment of Magic: Strategic Interruption Overlay */}
-      {!isBooting && activeTab === 'dashboard' && interventionOpen && (
+      {activeTab === 'dashboard' && interventionOpen && (
         <div style={{
           position: 'fixed',
           top: 0,

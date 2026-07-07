@@ -7,7 +7,6 @@ import {
   Send, 
   Plus,
   PlayCircle,
-  ShieldAlert,
   Phone
 } from 'lucide-react';
 
@@ -162,8 +161,6 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
   }
 
   const briefing = session.payload.briefing || session.payload || {};
-  const hasPhoneLeak = (briefing.bookingFindings || []).some((f: string) => f.toLowerCase().match(/voicemail|busy|phone/)) ||
-                       (briefing.likelyRevenueLeak || '').toLowerCase().includes('call');
 
   const handleApplyStrategy = () => {
     const customBriefing = {
@@ -219,6 +216,20 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
     setLiveMeetingNotes(updatedNotes);
     triggerAutoSave({ demoNotes: updatedNotes });
   };
+
+  const knowns: string[] = session.payload.brainKnowns || briefing.brainKnowns || [
+    'Domain registered and active.',
+    'Initial local search profile verified.'
+  ];
+  const unknowns: string[] = session.payload.brainUnknowns || briefing.brainUnknowns || [
+    'Who is the ultimate decision maker / owner?',
+    'Are they tied to long-term software agreements?'
+  ];
+  const explanation: string = session.payload.brainThinkingExplanation || briefing.brainThinkingExplanation || 'No structured observation has been parsed yet.';
+  const evidence: string[] = session.payload.brainThinkingEvidence || briefing.brainThinkingEvidence || [];
+  const missing: string[] = session.payload.brainThinkingMissing || briefing.brainThinkingMissing || [];
+  const investigation: string = session.payload.brainThinkingInvestigation || briefing.brainThinkingInvestigation || 'Log call details to compile reasoning.';
+  const nextQuestion: string = session.payload.brainNextQuestion || briefing.brainNextQuestion || 'Apart from yourself, who else will be involved in approving this purchase?';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '60px', position: 'relative' }}>
@@ -282,301 +293,326 @@ export const ProspectWorkspace: React.FC<ProspectWorkspaceProps> = ({
         </div>
       </div>
 
-      {/* 4-SECTION SINGLE-SCROLL LAYOUT */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      {/* UNIFIED SALES BRAIN & EXECUTION COCKPIT */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', marginTop: '16px' }}>
         
-        {/* ================= SECTION 1: OVERVIEW ================= */}
-        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
-            1. Overview
-          </h3>
+        {/* LEFT COLUMN: THE BRAIN REASONING ENGINE */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          
+          {/* 1. What We Know (Facts only) */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              What We Know
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
+            <ul style={{ paddingLeft: '16px', margin: 0, fontSize: '13.5px', lineHeight: '1.6', color: '#E4E4E7', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {knowns.map((item: string, idx: number) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr 300px', gap: '24px', alignItems: 'start' }}>
-            {/* Snapshot */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+          {/* 2. What We Don't Know (Crucial Unknowns) */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#EF4444', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              What We Don't Know
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
+            <ul style={{ paddingLeft: '16px', margin: 0, fontSize: '13.5px', lineHeight: '1.6', color: '#EF4444', display: 'flex', flexDirection: 'column', gap: '8px', fontWeight: 500 }}>
+              {unknowns.map((item: string, idx: number) => (
+                <li key={idx} style={{ color: '#FCA5A5' }}>
+                  <span style={{ color: '#EF4444', fontWeight: 700 }}>?</span> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 3. Thinking (Reasoning & Evidence) */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Reasoning & Evidence
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
+            
+            <div style={{ padding: '20px 24px', borderLeft: '2px solid #3B3B40', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '11px' }}>WEBSITE</span>
+                <span style={{ fontSize: '10px', color: '#71717A', display: 'block' }}>POSSIBLE EXPLANATION</span>
+                <p style={{ fontSize: '14px', color: '#FFFFFF', margin: '4px 0 0 0', lineHeight: '1.5' }}>
+                  {explanation}
+                </p>
+              </div>
+
+              {evidence.length > 0 && (
+                <div>
+                  <span style={{ fontSize: '10px', color: '#71717A', display: 'block' }}>SUPPORTING EVIDENCE</span>
+                  <ul style={{ paddingLeft: '16px', margin: '4px 0 0 0', fontSize: '13px', color: '#A1A1AA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {evidence.map((item: string, idx: number) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {missing.length > 0 && (
+                <div>
+                  <span style={{ fontSize: '10px', color: '#71717A', display: 'block' }}>MISSING EVIDENCE</span>
+                  <ul style={{ paddingLeft: '16px', margin: '4px 0 0 0', fontSize: '13px', color: '#A1A1AA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {missing.map((item: string, idx: number) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div>
+                <span style={{ fontSize: '10px', color: '#71717A', display: 'block' }}>SUGGESTED INVESTIGATION</span>
+                <p style={{ fontSize: '13px', color: '#E4E4E7', margin: '4px 0 0 0', fontWeight: 500 }}>
+                  {investigation}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Next Best Question (Visual Focal Point) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span style={{ fontSize: '11px', color: '#22C55E', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Next Best Question
+            </span>
+            <div style={{ background: '#18181B', border: '1px solid #2C2C2F', borderRadius: '6px', padding: '24px' }}>
+              <p style={{ fontSize: '16.5px', fontWeight: 400, color: '#FFFFFF', margin: 0, fontStyle: 'italic', lineHeight: '1.4' }}>
+                "{nextQuestion}"
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT COLUMN: ACTIONS, OUTREACH & EXECUTION HISTORY */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          
+          {/* Company Overview Snapshot */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Overview
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '13px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '6px', border: '1px solid #2C2C2F' }}>
+              <div>
+                <span style={{ color: '#71717A', display: 'block', fontSize: '10px' }}>WEBSITE</span>
                 <a href={`https://${briefing.website}`} target="_blank" rel="noreferrer" style={{ color: '#FFFFFF', textDecoration: 'underline', fontWeight: 600 }}>
-                  {briefing.website || 'Unable to verify'}
+                  {briefing.website || 'Not verified'}
                 </a>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '11px' }}>GOOGLE RATING</span>
+                <span style={{ color: '#71717A', display: 'block', fontSize: '10px' }}>RATING</span>
                 <span style={{ fontWeight: 600 }}>4.2 / 5.0 (42 reviews)</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '11px' }}>BOOKING PLATFORM</span>
+                <span style={{ color: '#71717A', display: 'block', fontSize: '10px' }}>BOOKING PLATFORM</span>
                 <span style={{ fontWeight: 600, color: 'var(--secondary)' }}>Vagaro</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '11px' }}>ESTIMATED ARR</span>
+                <span style={{ color: '#71717A', display: 'block', fontSize: '10px' }}>ESTIMATED ARR LEAK</span>
                 <span style={{ fontWeight: 600, color: 'var(--success)' }}>$2,400</span>
               </div>
             </div>
+          </div>
 
-            {/* AI Summary */}
-            <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800, display: 'block', marginBottom: '4px' }}>AI SUMMARY</span>
-              <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: '1.5' }}>
-                Bright Smile Orthodontics is a multi-chair dental practice using Vagaro. Google profile score is low due to missing posts and profile completeness. Tawana requested proof before agreeing to a meeting. Primary opportunity is increasing local visibility.
-              </p>
-              {hasPhoneLeak && (
-                <div style={{ fontSize: '13px', color: '#F59E0B', marginTop: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <ShieldAlert size={13} /> Phone line abandonment detected.
-                </div>
-              )}
-            </div>
-
-            {/* Deal Signals Checklist */}
-            <div style={{ padding: '16px 20px', borderLeft: '2px solid #3B3B40' }}>
-              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>DEAL SIGNALS</span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>
-                <div style={{ color: '#22C55E' }}>✓ Requested proof</div>
-                <div style={{ color: '#22C55E' }}>✓ Accepted meeting</div>
-                <div style={{ color: '#22C55E' }}>✓ Opened emails</div>
-                <div style={{ color: '#F59E0B' }}>⚠ Uses Vagaro</div>
-                <div style={{ color: '#EF4444' }}>⚠ Price concern</div>
+          {/* Strategy parameters hook */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Strategy Hooks
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '10px', color: '#71717A', fontWeight: 600 }}>PRIMARY PROBLEM</label>
+                <select 
+                  className="input-field" 
+                  value={primaryProblem} 
+                  onChange={e => { setPrimaryProblem(e.target.value); triggerAutoSave({ strategyProblem: e.target.value }); }}
+                  style={{ marginTop: '4px' }}
+                >
+                  <option value="Receptionist Phone Abandonment">Receptionist Phone Abandonment</option>
+                  <option value="Booking Checkout drop-off">Booking Checkout drop-off</option>
+                </select>
               </div>
-            </div>
-          </div>
-
-          {/* Continue where you left off CTA */}
-          <div style={{ borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '16px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Last Action: <strong>Prepared Demo</strong> • Status: Not Started
-            </div>
-            <button 
-              onClick={() => setIsPlaybookOpen(true)}
-              className="btn-primary" 
-              style={{ padding: '6px 16px', fontSize: '12.5px' }}
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-
-        {/* ================= SECTION 2: STRATEGY ================= */}
-        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
-            2. Strategy parameters
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-            <div>
-              <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>PRIMARY PROBLEM</label>
-              <select 
-                className="input-field" 
-                value={primaryProblem} 
-                onChange={e => { setPrimaryProblem(e.target.value); triggerAutoSave({ strategyProblem: e.target.value }); }}
-                style={{ marginTop: '6px' }}
-              >
-                <option value="Receptionist Phone Abandonment">Receptionist Phone Abandonment</option>
-                <option value="Booking Checkout drop-off">Booking Checkout drop-off</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>PRIMARY HOOK</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                value={primaryHook} 
-                onChange={e => { setPrimaryHook(e.target.value); triggerAutoSave({ strategyHook: e.target.value }); }}
-                style={{ marginTop: '6px' }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <div>
+                <label style={{ fontSize: '10px', color: '#71717A', fontWeight: 600 }}>PRIMARY HOOK</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={primaryHook} 
+                  onChange={e => { setPrimaryHook(e.target.value); triggerAutoSave({ strategyHook: e.target.value }); }}
+                  style={{ marginTop: '4px' }}
+                />
+              </div>
               <button 
                 onClick={handleApplyStrategy}
                 className="btn-secondary" 
-                style={{ width: '100%', justifyContent: 'center' }}
+                style={{ width: '100%', justifyContent: 'center', marginTop: '4px' }}
               >
-                Apply Hook & Regenerate
+                Apply Hook & Regenerate outreach
               </button>
             </div>
           </div>
-        </div>
 
-        {/* ================= SECTION 3: ACTION CENTER ================= */}
-        <div style={{ borderBottom: '1px solid #2C2C2F', paddingBottom: '32px', marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
-            3. Action Center
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px' }}>
+          {/* Action Center Buttons */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Execution Center
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
             
-            <button 
-              onClick={() => onStartCall(session.businessName)}
-              className="card-panel" 
-              style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
-            >
-              <Phone size={24} color="#A1A1AA" />
-              <strong style={{ fontSize: '14px', color: '#fff' }}>Start Call</strong>
-              <span style={{ fontSize: '11.5px', color: '#A1A1AA' }}>Launch call focus HUD</span>
-            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <button 
+                onClick={() => onStartCall(session.businessName)}
+                className="card-panel" 
+                style={{ padding: '16px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px' }}
+              >
+                <Phone size={18} color="#A1A1AA" />
+                <strong style={{ fontSize: '13px', color: '#fff' }}>Start Call</strong>
+              </button>
 
-            <button 
-              onClick={() => setIsPlaybookOpen(true)}
-              className="card-panel" 
-              style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
-            >
-              <PlayCircle size={24} color="#A1A1AA" />
-              <strong style={{ fontSize: '14px', color: '#fff' }}>Prepare Demo</strong>
-              <span style={{ fontSize: '11.5px', color: '#A1A1AA' }}>Review discovery checklists</span>
-            </button>
+              <button 
+                onClick={() => setIsPlaybookOpen(true)}
+                className="card-panel" 
+                style={{ padding: '16px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px' }}
+              >
+                <PlayCircle size={18} color="#A1A1AA" />
+                <strong style={{ fontSize: '13px', color: '#fff' }}>Prepare Demo</strong>
+              </button>
 
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(coldEmailBody);
-                alert('Email script copied to clipboard!');
-              }}
-              className="card-panel" 
-              style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
-            >
-              <Send size={24} color="#A1A1AA" />
-              <strong style={{ fontSize: '14px', color: '#fff' }}>Generate Email</strong>
-              <span style={{ fontSize: '11.5px', color: '#A1A1AA' }}>Copy personalized cold sequence</span>
-            </button>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(coldEmailBody);
+                  alert('Email script copied to clipboard!');
+                }}
+                className="card-panel" 
+                style={{ padding: '16px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px' }}
+              >
+                <Send size={18} color="#A1A1AA" />
+                <strong style={{ fontSize: '13px', color: '#fff' }}>Generate Email</strong>
+              </button>
 
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(linkedin);
-                alert('LinkedIn script copied!');
-              }}
-              className="card-panel" 
-              style={{ padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px', transition: 'background 0.2s, border-color 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#202024'; e.currentTarget.style.borderColor = '#3B3B40'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#18181B'; e.currentTarget.style.borderColor = '#2C2C2F'; }}
-            >
-              <ArrowLeft size={24} style={{ transform: 'rotate(180deg)' }} color="#A1A1AA" />
-              <strong style={{ fontSize: '14px', color: '#fff' }}>Send Follow-up</strong>
-              <span style={{ fontSize: '11.5px', color: '#A1A1AA' }}>Copy LinkedIn connection</span>
-            </button>
-
-          </div>
-
-          {/* Expanded Outreach Preview block */}
-          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
-            <div style={{ padding: '0 20px 0 0', borderRight: '1px solid #2C2C2F' }}>
-              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>COLD EMAIL COPY</span>
-              <div style={{ fontSize: '13.5px', color: '#A1A1AA', marginTop: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-                <strong>Subject:</strong> {coldEmailSubject}
-                {"\n\n"}{coldEmailBody}
-              </div>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(linkedin);
+                  alert('LinkedIn script copied!');
+                }}
+                className="card-panel" 
+                style={{ padding: '16px 12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer', border: '1px solid #2C2C2F', background: '#18181B', borderRadius: '8px' }}
+              >
+                <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} color="#A1A1AA" />
+                <strong style={{ fontSize: '13px', color: '#fff' }}>Send Follow-up</strong>
+              </button>
             </div>
-            <div style={{ padding: '0 0 0 20px' }}>
-              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>COLD CALL & SCRIPT</span>
-              <div style={{ fontSize: '13.5px', color: '#A1A1AA', marginTop: '12px', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-                <strong>Opening:</strong> {callOpening}
-                {"\n\n"}<strong>Permission Check:</strong> {callPermission}
-                {"\n\n"}<strong>Curiosity Hook:</strong> {callCuriosity}
-                {"\n\n"}<strong>Voicemail:</strong> {voicemail}
+            
+            {/* Outreach scripts preview */}
+            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px dashed #2C2C2F', paddingTop: '16px' }}>
+              <div>
+                <span style={{ fontSize: '10px', color: '#71717A', fontWeight: 700 }}>COLD EMAIL COPY</span>
+                <p style={{ fontSize: '12.5px', color: '#A1A1AA', marginTop: '6px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+                  <strong>Subject:</strong> {coldEmailSubject}
+                  {"\n\n"}{coldEmailBody}
+                </p>
+              </div>
+              <div>
+                <span style={{ fontSize: '10px', color: '#71717A', fontWeight: 700 }}>COLD CALL & VOICEMAIL SCRIPT</span>
+                <p style={{ fontSize: '12.5px', color: '#A1A1AA', marginTop: '6px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+                  <strong>Opening:</strong> {callOpening}
+                  {"\n\n"}<strong>Permission Check:</strong> {callPermission}
+                  {"\n\n"}<strong>Curiosity Hook:</strong> {callCuriosity}
+                  {"\n\n"}<strong>Voicemail:</strong> {voicemail}
+                </p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ================= SECTION 4: HISTORY ================= */}
-        <div style={{ paddingBottom: '32px', marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#71717A', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
-            4. History & Client Updates
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+          {/* Activity Timeline & Logs */}
+          <div>
+            <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Timeline & Logs
+            </span>
+            <hr style={{ border: 'none', borderTop: '1px solid #2C2C2F', margin: '8px 0 16px 0' }} />
             
-            {/* Timeline */}
-            <div>
-              <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>INTELLIGENT ACTIVITY FEED</span>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginTop: '12px' }}>
-                {timeline.map((item, idx) => (
-                  <div key={idx} style={{ padding: '14px 0', borderBottom: '1px solid #2C2C2F' }}>
-                    <div 
-                      onClick={() => toggleTimelineExpand(idx)}
-                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-                    >
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '13px' }}>
-                        <span>
-                          {item.text.includes('Email') ? '📧' : item.text.includes('Call') ? '📞' : item.text.includes('Meeting') ? '📅' : '📄'}
-                        </span>
-                        <div>
-                          <strong style={{ color: '#fff' }}>{item.text}</strong>
-                          <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '8px' }}>{item.time}</span>
-                        </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {timeline.map((item, idx) => (
+                <div key={idx} style={{ padding: '12px 0', borderBottom: '1px solid #2C2C2F' }}>
+                  <div 
+                    onClick={() => toggleTimelineExpand(idx)}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                  >
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12.5px' }}>
+                      <span>{item.text.includes('Email') ? '📧' : item.text.includes('Call') ? '📞' : item.text.includes('Meeting') ? '📅' : '📄'}</span>
+                      <div>
+                        <strong style={{ color: '#fff' }}>{item.text}</strong>
+                        <span style={{ fontSize: '11px', color: '#71717A', marginLeft: '6px' }}>{item.time}</span>
                       </div>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{item.expanded ? 'Collapse ▲' : 'Expand ▼'}</span>
                     </div>
+                    <span style={{ fontSize: '11px', color: '#71717A' }}>{item.expanded ? '▲' : '▼'}</span>
+                  </div>
+                  {item.expanded && item.detail && (
+                    <p style={{ fontSize: '12px', color: '#A1A1AA', marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed #2C2C2F', lineHeight: '1.4' }}>
+                      {item.detail}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
 
-                    {item.expanded && item.detail && (
-                      <p style={{ fontSize: '13px', color: '#A1A1AA', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #2C2C2F', lineHeight: '1.5', paddingLeft: '8px' }}>
-                        {item.detail}
-                      </p>
-                    )}
+            {/* Diary logs */}
+            <div style={{ marginTop: '20px' }}>
+              <span style={{ fontSize: '10px', color: '#71717A', fontWeight: 700 }}>DIARY LOGS</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px', maxHeight: '140px', overflowY: 'auto' }}>
+                {whatsappNotes.map((note, idx) => (
+                  <div key={idx} style={{ background: 'rgba(255,255,255,0.01)', padding: '8px', borderRadius: '4px', border: '1px solid #2C2C2F', fontSize: '12px' }}>
+                    <span style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700 }}>{note.date}</span>
+                    <p style={{ color: '#fff', marginTop: '2px', margin: 0 }}>{note.text}</p>
                   </div>
                 ))}
               </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  placeholder="Type diary update..." 
+                  value={newNoteText}
+                  onChange={e => setNewNoteText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddWhatsAppNote()}
+                  style={{ fontSize: '12px', padding: '6px 10px' }}
+                />
+                <button onClick={handleAddWhatsAppNote} className="btn-primary" style={{ padding: '6px 12px' }}>
+                  <Plus size={14} />
+                </button>
+              </div>
             </div>
 
-            {/* WhatsApp Updates Diary */}
-            <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>DIARY LOGS</span>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
-                  {whatsappNotes.map((note, idx) => (
-                    <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '4px', fontSize: '12.5px' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 700 }}>{note.date}</span>
-                      <p style={{ color: '#fff', marginTop: '2px' }}>{note.text}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="Type diary update..." 
-                    value={newNoteText}
-                    onChange={e => setNewNoteText(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAddWhatsAppNote()}
-                  />
-                  <button onClick={handleAddWhatsAppNote} className="btn-primary" style={{ padding: '8px 14px', boxShadow: 'none' }}>
-                    <Plus size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Prospect Journal */}
-              <div style={{ marginTop: '16px', borderTop: '1px dashed #2C2C2F', paddingTop: '12px' }}>
-                <span style={{ fontSize: '11px', color: '#71717A', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>PROSPECT JOURNAL</span>
-                <textarea
-                  className="input-field"
-                  rows={2}
-                  style={{ 
-                    marginTop: '6px', 
-                    fontSize: '13px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid #2C2C2F',
-                    borderRadius: '0',
-                    padding: '8px 0',
-                    color: '#FFFFFF'
-                  }}
-                  placeholder="Scribble notes for future self..."
-                  value={journalText}
-                  onChange={e => { setJournalText(e.target.value); triggerAutoSave({ journalText: e.target.value }); }}
-                />
-              </div>
+            {/* Prospect Journal */}
+            <div style={{ marginTop: '20px', borderTop: '1px dashed #2C2C2F', paddingTop: '16px' }}>
+              <span style={{ fontSize: '10px', color: '#71717A', fontWeight: 700 }}>PROSPECT JOURNAL</span>
+              <textarea
+                className="input-field"
+                rows={2}
+                style={{ 
+                  marginTop: '6px', 
+                  fontSize: '12.5px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '1px solid #2C2C2F',
+                  borderRadius: '0',
+                  padding: '8px 0',
+                  color: '#FFFFFF'
+                }}
+                placeholder="Scribble notes for future self..."
+                value={journalText}
+                onChange={e => { setJournalText(e.target.value); triggerAutoSave({ journalText: e.target.value }); }}
+              />
             </div>
 
           </div>
+
         </div>
 
       </div>
