@@ -2,64 +2,69 @@
 
 @layer base {
   :root {
-    --background: #09090b;
-    --foreground: #f4f4f5;
-    --card: #18181b;
-    --card-border: rgba(255, 255, 255, 0.08);
-    --primary: #6366f1;
-    --primary-glow: rgba(99, 102, 241, 0.25);
+    --background: #F8F7F4;
+    --card: #FFFFFF;
+    --foreground: #161616;
+    --secondary: #666666;
+    --border: #E8E5DF;
+    --accent: #0F172A;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: rgba(24, 24, 27, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 14px;
+.font-serif {
+  font-family: 'Instrument Serif', Georgia, serif;
 }
 
-/* Primary glow button */
-.btn-glow {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: #ffffff;
-  font-weight: 600;
+/* Warm card styling */
+.warm-card {
+  background: #FFFFFF;
+  border: 1px solid #E8E5DF;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(22, 22, 22, 0.03);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: #0F172A;
+  color: #FFFFFF;
+  font-weight: 500;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  cursor: pointer;
 }
 
-.btn-glow:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.55);
+.btn-primary:hover {
+  background: #1E293B;
 }
 
 /* Preset badge chip */
 .chip-preset {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #a1a1aa;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 12px;
+  background: #FFFFFF;
+  border: 1px solid #E8E5DF;
+  color: #555555;
+  font-size: 12.5px;
+  font-weight: 400;
+  padding: 6px 14px;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .chip-preset:hover {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #ffffff;
+  border-color: #161616;
+  color: #161616;
+  background: #F1EFEA;
 }
