@@ -5,9 +5,10 @@ import { Eye, Brain, Compass, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export interface PulseStep {
-  key: 'observer' | 'reasoner' | 'strategist' | 'adapter';
+  key: 'observer' | 'reasoner' | 'strategist' | 'playbook';
   title: string;
   desc: string;
+  version: string;
   status: 'pending' | 'running' | 'done';
 }
 
@@ -20,14 +21,14 @@ export const LiveObserverPulse: React.FC<LiveObserverPulseProps> = ({ steps }) =
     observer: Eye,
     reasoner: Brain,
     strategist: Compass,
-    adapter: Sparkles
+    playbook: Sparkles
   };
 
   return (
     <div style={{
       maxWidth: '640px',
       margin: '40px auto',
-      background: 'rgba(15, 15, 20, 0.8)',
+      background: 'rgba(15, 15, 20, 0.85)',
       border: '1px solid rgba(255, 255, 255, 0.08)',
       borderRadius: '16px',
       padding: '24px 28px',
@@ -36,11 +37,11 @@ export const LiveObserverPulse: React.FC<LiveObserverPulseProps> = ({ steps }) =
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <span style={{ fontSize: '11px', fontWeight: 700, color: '#A1A1AA', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          Pheebs Core Execution Engine
+          Pheebs Judgment Engine (Genesis v0.2)
         </span>
-        <span style={{ fontSize: '11px', color: '#6366F1', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6366F1', boxShadow: '0 0 8px #6366F1' }} />
-          First-Principles Reasoning
+        <span style={{ fontSize: '11px', color: '#818CF8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8', boxShadow: '0 0 8px #818CF8' }} />
+          The Brain • Versioned Inference Trace
         </span>
       </div>
 
@@ -84,19 +85,24 @@ export const LiveObserverPulse: React.FC<LiveObserverPulseProps> = ({ steps }) =
               </div>
 
               <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '13.5px', fontWeight: 600, color: isDone || isRunning ? '#FFFFFF' : '#71717A' }}>
-                    {step.title}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13.5px', fontWeight: 600, color: isDone || isRunning ? '#FFFFFF' : '#71717A' }}>
+                      {step.title}
+                    </span>
+                    {isRunning && (
+                      <motion.span
+                        animate={{ opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1.2, repeat: Infinity }}
+                        style={{ fontSize: '11px', color: '#818CF8', fontWeight: 500 }}
+                      >
+                        reasoning...
+                      </motion.span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '10px', color: '#52525B', fontFamily: 'monospace' }}>
+                    {step.version}
                   </span>
-                  {isRunning && (
-                    <motion.span
-                      animate={{ opacity: [0.4, 1, 0.4] }}
-                      transition={{ duration: 1.2, repeat: Infinity }}
-                      style={{ fontSize: '11px', color: '#818CF8', fontWeight: 500 }}
-                    >
-                      analyzing...
-                    </motion.span>
-                  )}
                 </div>
                 <p style={{ fontSize: '12px', color: '#71717A', margin: 0, marginTop: '2px' }}>
                   {step.desc}

@@ -3,9 +3,9 @@
  * Strategy -> Playbook -> Recommendation
  */
 
-import { Business, Strategy, Recommendation } from '../shared/types';
+import { BusinessRecord, Strategy, PlaybookRecommendation } from '../shared/types';
 
 export interface Adapter {
   name: string;
-  adapt(strategy: Strategy, business: Business): Promise<Recommendation>;
+  adapt(strategy: Strategy, business: BusinessRecord): Promise<PlaybookRecommendation>;
 }

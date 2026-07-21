@@ -1,23 +1,21 @@
 /**
  * Pheebs Core - Genesis Database Repository Abstraction
- * Supports Supabase / Postgres persistence with automatic fallback to memory cache.
  */
 
-import { Business, Diagnosis, PheebsBrief } from '../types';
+import { BusinessRecord, Diagnosis, PheebsBrief } from '../types';
 
-// Global in-memory cache store
 const memoryStore = {
-  businesses: new Map<string, Business>(),
+  businesses: new Map<string, BusinessRecord>(),
   diagnoses: new Map<string, Diagnosis>(),
   briefs: new Map<string, PheebsBrief>()
 };
 
 export class DbRepository {
-  static async saveBusiness(business: Business): Promise<void> {
+  static async saveBusiness(business: BusinessRecord): Promise<void> {
     memoryStore.businesses.set(business.id, business);
   }
 
-  static async getBusiness(id: string): Promise<Business | null> {
+  static async getBusiness(id: string): Promise<BusinessRecord | null> {
     return memoryStore.businesses.get(id) || null;
   }
 

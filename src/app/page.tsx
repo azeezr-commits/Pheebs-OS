@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Sparkles, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
+import { Search, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
 import { LiveObserverPulse, PulseStep } from '@/components/LiveObserverPulse';
 import { BriefView } from '@/components/BriefView';
-import { PheebsBrief } from '@/packages/shared/types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { PheebsBrief, ThinkingTrace } from '@/packages/shared/types';
 
 const PRESET_ACCOUNTS = [
   { name: 'Bright Smile Orthodontics', url: 'https://maps.google.com/?q=Bright+Smile+Orthodontics+San+Francisco' },
@@ -18,6 +17,7 @@ export default function PheebsGenesisPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pulseSteps, setPulseSteps] = useState<PulseStep[]>([]);
   const [generatedBrief, setGeneratedBrief] = useState<PheebsBrief | null>(null);
+  const [generatedTrace, setGeneratedTrace] = useState<ThinkingTrace | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleGenerate = async (targetUrl?: string) => {
@@ -30,30 +30,28 @@ export default function PheebsGenesisPage() {
     setErrorMsg(null);
     setIsGenerating(true);
     setGeneratedBrief(null);
+    setGeneratedTrace(undefined);
 
-    // Initialize execution pulse steps
+    // Initialize execution pulse steps with versioning
     const initialSteps: PulseStep[] = [
-      { key: 'observer', title: 'Business Observer', desc: 'Extracting factual listing observations (No AI)', status: 'running' },
-      { key: 'reasoner', title: 'First-Principles Reasoner', desc: 'Diagnosing single primary operational constraint', status: 'pending' },
-      { key: 'strategist', title: 'Consultative Strategist', desc: 'Formulating discovery question & opening hook', status: 'pending' },
-      { key: 'adapter', title: 'Zoca Playbook Adapter', desc: 'Mapping strategy to recommended solution anchor', status: 'pending' }
+      { key: 'observer', title: 'Observer Service', desc: 'Extracting factual Business Record & Signals (No AI)', version: 'v1.0.0', status: 'running' },
+      { key: 'reasoner', title: 'The Brain Reasoner', desc: 'Diagnosing primary constraint over observed Signals', version: 'v1.0.0', status: 'pending' },
+      { key: 'strategist', title: 'The Brain Strategist', desc: 'Formulating discovery question & opening call hook', version: 'v1.0.0', status: 'pending' },
+      { key: 'playbook', title: 'Zoca Playbook Engine', desc: 'Selecting actionable recommendation & pitch anchor', version: 'v1.0.0', status: 'pending' }
     ];
     setPulseSteps(initialSteps);
 
     try {
-      // Step 1: Observer pulse
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise(r => setTimeout(r, 500));
       setPulseSteps(prev => prev.map(s => s.key === 'observer' ? { ...s, status: 'done' } : s.key === 'reasoner' ? { ...s, status: 'running' } : s));
 
-      // Step 2: Reasoner pulse
-      await new Promise(r => setTimeout(r, 700));
+      await new Promise(r => setTimeout(r, 600));
       setPulseSteps(prev => prev.map(s => s.key === 'reasoner' ? { ...s, status: 'done' } : s.key === 'strategist' ? { ...s, status: 'running' } : s));
 
-      // Step 3: API Pipeline Execution
       const res = await fetch('/api/brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToUse, adapterKey: 'zoca' })
+        body: JSON.stringify({ url: urlToUse, playbookKey: 'zoca' })
       });
 
       if (!res.ok) {
@@ -61,15 +59,18 @@ export default function PheebsGenesisPage() {
         throw new Error(errData.error || 'Failed to generate brief');
       }
 
-      setPulseSteps(prev => prev.map(s => s.key === 'strategist' ? { ...s, status: 'done' } : s.key === 'adapter' ? { ...s, status: 'running' } : s));
-      await new Promise(r => setTimeout(r, 500));
-      
-      const briefData: PheebsBrief = await res.json();
-
-      setPulseSteps(prev => prev.map(s => ({ ...s, status: 'done' })));
+      setPulseSteps(prev => prev.map(s => s.key === 'strategist' ? { ...s, status: 'done' } : s.key === 'playbook' ? { ...s, status: 'running' } : s));
       await new Promise(r => setTimeout(r, 400));
 
+      const responseData = await res.json();
+      const briefData: PheebsBrief = responseData.brief;
+      const traceData: ThinkingTrace = responseData.trace;
+
+      setPulseSteps(prev => prev.map(s => ({ ...s, status: 'done' })));
+      await new Promise(r => setTimeout(r, 300));
+
       setGeneratedBrief(briefData);
+      setGeneratedTrace(traceData);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || 'Error executing pipeline');
@@ -113,11 +114,11 @@ export default function PheebsGenesisPage() {
             textTransform: 'uppercase'
           }}>
             <Cpu size={14} color="#818CF8" />
-            Pheebs Core — Genesis v0.1
+            Pheebs Core — Genesis v0.2 Judgment Engine
           </div>
         </div>
 
-        {/* HERO SECTION (Rendered when no brief is generated) */}
+        {/* HERO SECTION */}
         {!generatedBrief && (
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <h1 style={{
@@ -142,14 +143,14 @@ export default function PheebsGenesisPage() {
             <p style={{
               fontSize: '16px',
               color: '#9CA3AF',
-              maxWidth: '560px',
+              maxWidth: '580px',
               margin: '16px auto 0 auto',
               lineHeight: 1.6
             }}>
-              First-principles business observation & single-constraint diagnosis. Paste a Google Business Profile to receive your opinionated briefing.
+              Observer Signals ➔ The Brain ➔ Playbooks. Paste a Google Business Profile to generate your versioned thinking trace.
             </p>
 
-            {/* Google Business Profile URL Input Bar */}
+            {/* Input Bar */}
             <div style={{
               maxWidth: '680px',
               margin: '36px auto 0 auto',
@@ -207,7 +208,7 @@ export default function PheebsGenesisPage() {
               </p>
             )}
 
-            {/* Quick preset chips for instant 1-click testing */}
+            {/* Quick preset chips */}
             <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', color: '#71717A', fontWeight: 500 }}>Try sample target:</span>
               {PRESET_ACCOUNTS.map((account, i) => (
@@ -233,12 +234,14 @@ export default function PheebsGenesisPage() {
           <LiveObserverPulse steps={pulseSteps} />
         )}
 
-        {/* OPINIONATED BRIEF VIEW (RECOMMENDATION FIRST) */}
+        {/* OPINIONATED BRIEF VIEW */}
         {generatedBrief && (
           <BriefView
             brief={generatedBrief}
+            trace={generatedTrace}
             onReset={() => {
               setGeneratedBrief(null);
+              setGeneratedTrace(undefined);
               setInputUrl('');
             }}
           />
@@ -248,7 +251,7 @@ export default function PheebsGenesisPage() {
         <div style={{ textAlign: 'center', marginTop: '60px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '24px' }}>
           <p style={{ fontSize: '12px', color: '#52525B', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <ShieldCheck size={14} color="#52525B" />
-            Principle: Never show information before a recommendation. One diagnosis. One conversation. One outcome.
+            Principle: Never show information before a recommendation. Save Thinking, not just Briefs.
           </p>
         </div>
 

@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PheebsBrief } from '@/packages/shared/types';
-import { Target, Zap, ShieldAlert, CheckCircle, Copy, Check, MessageSquare, Flame } from 'lucide-react';
+import { PheebsBrief, ThinkingTrace } from '@/packages/shared/types';
+import { Target, Zap, ShieldAlert, CheckCircle, Copy, Check, MessageSquare, Flame, Cpu, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BriefViewProps {
   brief: PheebsBrief;
+  trace?: ThinkingTrace;
   onReset: () => void;
 }
 
-export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
+export const BriefView: React.FC<BriefViewProps> = ({ brief, trace, onReset }) => {
   const { business, diagnosis, strategy, recommendation } = brief;
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -20,13 +21,20 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
+  const engineVersions = trace?.engineVersions || {
+    observer: 'v1.0.0',
+    reasoner: 'v1.0.0',
+    strategy: 'v1.0.0',
+    playbook: 'v1.0.0'
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       style={{
-        maxWidth: '800px',
+        maxWidth: '820px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -43,10 +51,15 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
         paddingBottom: '20px'
       }}>
         <div>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Target Account Observed
-          </span>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#FFFFFF', margin: 0, marginTop: '4px', letterSpacing: '-0.02em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Target Business Record Observed
+            </span>
+            <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.06)', color: '#A1A1AA', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>
+              {business.observerVersion || 'Observer v1.0.0'}
+            </span>
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#FFFFFF', margin: 0, letterSpacing: '-0.02em' }}>
             {business.name}
           </h1>
           <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, marginTop: '4px' }}>
@@ -73,7 +86,7 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
         </button>
       </div>
 
-      {/* PRINCIPLE ONE: RECOMMENDATION & ACTION ANCHOR FIRST */}
+      {/* PRINCIPLE ONE: RECOMMENDATION & PLAYBOOK ANCHOR FIRST */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%)',
         border: '1px solid rgba(99, 102, 241, 0.3)',
@@ -82,10 +95,15 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <Zap size={18} color="#818CF8" />
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            1. Recommended Solution Anchor (Lead With This)
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Zap size={18} color="#818CF8" />
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#818CF8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              1. Playbook Recommendation (Lead With This)
+            </span>
+          </div>
+          <span style={{ fontSize: '10px', background: 'rgba(99, 102, 241, 0.2)', color: '#C084FC', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+            {recommendation.playbookName || 'Zoca Playbook'} ({recommendation.playbookVersion || 'v1.0.0'})
           </span>
         </div>
 
@@ -97,7 +115,7 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
           {recommendation.strategicRationale}
         </p>
 
-        {/* Opening Conversation Hook */}
+        {/* Opening Call Hook */}
         <div style={{
           marginTop: '20px',
           background: 'rgba(9, 9, 11, 0.8)',
@@ -127,17 +145,22 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
       {/* SECTION 2: CONVERSATION STRATEGY & THE EXACT DISCOVERY QUESTION */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         
-        {/* Courageous Discovery Questions */}
+        {/* Courageous Discovery Question */}
         <div style={{
           background: 'rgba(24, 24, 27, 0.6)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '14px',
           padding: '24px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <Target size={16} color="#22C55E" />
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#22C55E', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              2. Single Question Worth Asking
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Target size={16} color="#22C55E" />
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#22C55E', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                2. Single Question Worth Asking
+              </span>
+            </div>
+            <span style={{ fontSize: '10px', color: '#52525B', fontFamily: 'monospace' }}>
+              Strategy {strategy.strategyVersion || 'v1.0.0'}
             </span>
           </div>
 
@@ -152,7 +175,7 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
           </div>
         </div>
 
-        {/* Strategic Avoid & Watchouts */}
+        {/* Strategic Traps to Avoid */}
         <div style={{
           background: 'rgba(24, 24, 27, 0.6)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -184,7 +207,7 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
 
       </div>
 
-      {/* SECTION 3: DIAGNOSIS & VERIFIABLE EVIDENCE (AT BOTTOM) */}
+      {/* SECTION 3: DIAGNOSED CONSTRAINT & EXTRACTED SIGNALS */}
       <div style={{
         background: 'rgba(24, 24, 27, 0.4)',
         border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -195,34 +218,75 @@ export const BriefView: React.FC<BriefViewProps> = ({ brief, onReset }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Flame size={16} color="#F59E0B" />
             <span style={{ fontSize: '11px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              3. Diagnosed Constraint ({diagnosis.confidence}% Confidence)
+              3. Diagnosed Primary Constraint ({diagnosis.confidence}% Confidence)
             </span>
           </div>
+          <span style={{ fontSize: '10px', color: '#52525B', fontFamily: 'monospace' }}>
+            Reasoner {diagnosis.reasonerVersion || 'v1.0.0'}
+          </span>
         </div>
 
         <p style={{ fontSize: '15px', color: '#FFFFFF', fontWeight: 600, margin: 0, marginBottom: '16px' }}>
           {diagnosis.primaryConstraint}
         </p>
 
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '14px' }}>
-          <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '10px' }}>
-            Observable Factual Evidence
-          </span>
+        {/* Extracted Factual Signals */}
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+            <Layers size={13} color="#818CF8" />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Observed Signals ({business.signals?.length || 0})
+            </span>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {diagnosis.evidence.map((ev, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#D1D5DB' }}>
-                <CheckCircle size={14} color="#22C55E" style={{ marginTop: '2px', flexShrink: 0 }} />
-                <span>{ev}</span>
-              </div>
-            ))}
+            {business.signals && business.signals.length > 0 ? (
+              business.signals.map((sig) => (
+                <div key={sig.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.02)', padding: '8px 12px', borderRadius: '6px', fontSize: '12.5px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle size={13} color="#22C55E" />
+                    <span style={{ color: '#E5E7EB', fontWeight: 500 }}>{sig.label}:</span>
+                    <span style={{ color: '#9CA3AF' }}>{String(sig.value)}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#6B7280' }}>
+                    <span>{sig.source}</span>
+                    <span style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22C55E', padding: '1px 5px', borderRadius: '3px', fontWeight: 600 }}>{sig.confidence}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p style={{ fontSize: '12.5px', color: '#6B7280', margin: 0 }}>Signals observed from listing metadata</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Executed Metadata Footer */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#6B7280', paddingTop: '8px' }}>
-        <span>Generated in {brief.executionTimeMs}ms • Adapter: {recommendation.adapterName}</span>
-        <span>Pheebs Core Genesis Engine v0.1</span>
+      {/* Engine Versioning Audit Footer */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        fontSize: '11px',
+        color: '#6B7280',
+        paddingTop: '8px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.04)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Cpu size={12} color="#818CF8" /> Engine Trace ID: {trace?.id || brief.traceId || brief.id}
+          </span>
+          <span>• Execution: {brief.executionTimeMs}ms</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'monospace', fontSize: '10px' }}>
+          <span>Observer {engineVersions.observer}</span>
+          <span>•</span>
+          <span>Reasoner {engineVersions.reasoner}</span>
+          <span>•</span>
+          <span>Strategy {engineVersions.strategy}</span>
+          <span>•</span>
+          <span>Playbook {engineVersions.playbook}</span>
+        </div>
       </div>
     </motion.div>
   );
