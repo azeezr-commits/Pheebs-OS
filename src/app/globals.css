@@ -1,70 +1,49 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    --background: #F8F7F4;
-    --card: #FFFFFF;
-    --foreground: #161616;
-    --secondary: #666666;
-    --border: #E8E5DF;
-    --accent: #0F172A;
-  }
-
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
+    background-color: #FBFBF9;
+    color: #1A1A1A;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
   }
 }
 
-.font-serif {
-  font-family: 'Instrument Serif', Georgia, serif;
-}
-
-/* Warm card styling */
-.warm-card {
-  background: #FFFFFF;
-  border: 1px solid #E8E5DF;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(22, 22, 22, 0.03);
-}
-
-/* Primary Button */
-.btn-primary {
-  background: #0F172A;
-  color: #FFFFFF;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
-  transition: all 0.15s ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #1E293B;
-}
-
-/* Preset badge chip */
-.chip-preset {
-  background: #FFFFFF;
-  border: 1px solid #E8E5DF;
-  color: #555555;
-  font-size: 12.5px;
+/* Magazine Editorial Fonts */
+.serif-heading {
+  font-family: "Instrument Serif", Georgia, Cambria, "Times New Roman", Times, serif;
   font-weight: 400;
-  padding: 6px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  letter-spacing: -0.02em;
 }
 
-.chip-preset:hover {
-  border-color: #161616;
-  color: #161616;
-  background: #F1EFEA;
+.mono-tag {
+  font-family: "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Calm Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #1A1A1A;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
 }

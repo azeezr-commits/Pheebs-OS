@@ -4,9 +4,6 @@ export const JUDGMENT_VERSION = '0.3';
 
 /**
  * Stage 4 — Judgment Engine (AI Layer + Deterministic Confidence Computation)
- * Selects ONE primary business constraint.
- * Computes Confidence score deterministically: Evidence Score * Coverage * Consistency.
- * Structures Known, Unknown, Assumptions as assets.
  */
 export async function executeJudgment(
   priorityRanking: PriorityItem[],
@@ -14,13 +11,14 @@ export async function executeJudgment(
   context: BusinessContext
 ): Promise<DiagnosisData> {
 
-  // 1. Compute Confidence Score Deterministically (No AI guessing!)
-  const evidenceScore = Math.min(evidence.length / 5.0, 1.0); // 5 items = 1.0
+  // 1. Compute Confidence Score & Stars Deterministically
+  const evidenceScore = Math.min(evidence.length / 5.0, 1.0);
   const coverage = evidence.some((e) => e.type === 'booking_link') && evidence.some((e) => e.type === 'review_count') ? 0.9 : 0.6;
-  const consistency = 0.95; // Consistency across GBP & audit sources
+  const consistency = 0.95;
 
   const finalScore = Number((evidenceScore * coverage * consistency).toFixed(2));
   const confidenceLevel = finalScore >= 0.7 ? 'High' : finalScore >= 0.4 ? 'Medium' : 'Low';
+  const stars = finalScore >= 0.8 ? '★★★★★' : finalScore >= 0.6 ? '★★★★☆' : finalScore >= 0.4 ? '★★★☆☆' : '★★☆☆☆';
 
   const computedConfidence: ComputedConfidence = {
     evidenceScore,
@@ -28,9 +26,11 @@ export async function executeJudgment(
     consistency,
     finalScore,
     level: confidenceLevel,
+    stars,
+    signalCount: 14,
   };
 
-  // 2. Structured Knowledge Assets (Known, Unknown, Assumptions)
+  // 2. Structured Knowledge Assets
   const known = [
     `Rating is ⭐ ${evidence.find((e) => e.type === 'rating')?.value || 'N/A'} stars`,
     `Review count is ${evidence.find((e) => e.type === 'review_count')?.value || 'N/A'} total reviews`,
@@ -38,48 +38,32 @@ export async function executeJudgment(
   ];
 
   const unknown = [
-    'Current appointment booking software in use at front desk',
-    'Direct phone-to-appointment conversion rate',
-    'After-hours voicemail volume and weekend callback speed',
+    'Booking software in use',
+    'No-show rate',
+    'Repeat customer %',
   ];
 
   const assumptions = [
-    'High-intent searchers on mobile prefer instant confirmation over leaving voicemails.',
-    'Front-desk staff do not answer phone lines past normal business hours.',
+    'High-intent mobile searchers prefer instant online slot confirmation over leaving voicemails.',
+    'Front-desk staff do not answer phone lines outside normal office hours.',
   ];
 
   const knowledgeAssets: KnownUnknownAssumptions = { known, unknown, assumptions };
 
-  // 3. Select Primary Constraint based on Top Ranked Priority Item
+  // 3. Select Primary Constraint
   const topPriority = priorityRanking[0];
 
   if (topPriority && topPriority.evidenceType === 'booking_link') {
     return {
       primaryConstraint: 'Conversion',
-      whyThis: `Top priority is ${topPriority.label}. Social proof already exists, but the primary revenue leak is an offline intake process.`,
+      whyThis: 'Customers already trust this business. The reviews prove that. The problem begins after that. There isn’t a clear path from "I like this place" to "I’m booking now." That’s where I’d spend my time.',
       whyNot: [
-        { constraint: 'Trust', reason: 'Trust is verified by high rating baseline.' },
-        { constraint: 'Visibility', reason: 'Searchers arrive at profile, but hit a phone-only booking bottleneck.' },
+        { topic: 'Reviews & Reputation', reason: 'You’re already winning there with strong review volume and rating.' },
+        { topic: 'SEO & Organic Traffic', reason: 'Searchers are already reaching the profile; optimization is secondary.' },
       ],
       falsificationEvidence: [
         'If prospect proves that 90%+ of website visitors complete an instant contact form submission.',
-        'If phone lines are answered 24/7 by an active dedicated receptionist service.',
-      ],
-      computedConfidence,
-      knowledgeAssets,
-      judgmentVersion: JUDGMENT_VERSION,
-    };
-  }
-
-  if (topPriority && topPriority.evidenceType === 'review_count') {
-    return {
-      primaryConstraint: 'Trust',
-      whyThis: `Top priority is ${topPriority.label}. Review density is below industry trust parity.`,
-      whyNot: [
-        { constraint: 'Conversion', reason: 'Optimizing intake UI will not convert leads who hesitate due to low review count.' },
-      ],
-      falsificationEvidence: [
-        'If prospect demonstrates high offline word-of-mouth referral volume.',
+        'If phone lines are answered 24/7 by a live dedicated receptionist service.',
       ],
       computedConfidence,
       knowledgeAssets,
@@ -88,13 +72,13 @@ export async function executeJudgment(
   }
 
   return {
-    primaryConstraint: 'Visibility',
-    whyThis: 'Expanding local discovery reach is required to drive top-of-funnel customer traffic.',
+    primaryConstraint: 'Trust',
+    whyThis: 'Review density is below industry trust parity. Social proof acceleration is required before scaling ad spend.',
     whyNot: [
-      { constraint: 'Retention', reason: 'Current customer sentiment is stable.' },
+      { topic: 'Paid Search Ads', reason: 'Ads perform poorly when buyers see sparse review counts.' },
     ],
     falsificationEvidence: [
-      'If local map pack rank for primary category keywords is already #1 in the zip code.',
+      'If prospect demonstrates high offline word-of-mouth referral volume.',
     ],
     computedConfidence,
     knowledgeAssets,

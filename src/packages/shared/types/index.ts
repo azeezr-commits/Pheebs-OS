@@ -1,13 +1,6 @@
 /**
- * Pheebs Core v0.5 — Production Architecture & Reasoning Contract
- *
- * (D)  Stage 0: Context Initialization
- * (D)  Stage 1: Observer (Verified facts)
- * (D)  Stage 2: Evidence Normalization (Raw primitives, no interpretation)
- * (AI) Stage 3: Prioritization (Applies Industry Knowledge Pack weights)
- * (AI) Stage 4: Judgment Engine (ONE constraint + Computed Confidence)
- * (AI) Stage 5: Conversation Engine (Outputs structured object, consumes Unknowns)
- * (D)  Stage 6: Brief Renderer (Receives ReasoningContract, renders UI brief & secret trace)
+ * PHEEBS v0.0 — "Know where to start."
+ * Domain Models & Reasoning Contract
  */
 
 export type PrimaryConstraint = 'Visibility' | 'Trust' | 'Conversion' | 'Retention' | 'Operations' | 'Unknown';
@@ -45,12 +38,13 @@ export interface ObservationData {
   observedAt: string;
 }
 
-// Stage 2: Normalized Evidence (Strictly facts, NO interpretation!)
 export interface NormalizedEvidence {
   id: string;
   type: string;        // e.g. 'booking_link', 'review_count', 'rating', 'photos'
   value: string | number | boolean;
   source: string;
+  isPositive?: boolean;
+  label?: string;
 }
 
 export interface PriorityItem {
@@ -74,19 +68,20 @@ export interface ComputedConfidence {
   consistency: number;       // 0.0 - 1.0
   finalScore: number;        // evidenceScore * coverage * consistency
   level: ConfidenceLevel;
+  stars: string;             // e.g. '★★★★☆'
+  signalCount: number;
 }
 
 export interface DiagnosisData {
   primaryConstraint: PrimaryConstraint;
   whyThis: string;
-  whyNot: Array<{ constraint: PrimaryConstraint; reason: string }>;
-  falsificationEvidence: string[]; // What evidence could prove us wrong?
+  whyNot: Array<{ topic: string; reason: string }>;
+  falsificationEvidence: string[];
   computedConfidence: ComputedConfidence;
   knowledgeAssets: KnownUnknownAssumptions;
   judgmentVersion: string;
 }
 
-// Stage 5 Output: Pure Structured Object (Not paragraphs!)
 export interface ConversationObject {
   openingAngle: string;
   firstQuestion: string;
@@ -103,6 +98,7 @@ export interface EditorialOutput {
   openingScript: string;
   keyObjections: Array<{ objection: string; response: string }>;
   beforeYouAssume: string[];
+  memorableFooter: string;
 }
 
 export interface GoldenRuleAnswers {
@@ -113,7 +109,6 @@ export interface GoldenRuleAnswers {
   evidenceProvingWrong: string[];
 }
 
-// Secret Debug & Audit Trace
 export interface ThinkingTrace {
   traceId: string;
   timestamp: string;
@@ -142,7 +137,7 @@ export interface ReasoningContract {
   generatedAt: string;
 }
 
-// Projectable UI View (Disposable Brief)
+// PHEEBS v0.0 UI View ("Know where to start.")
 export interface PheebsBrief {
   id: string;
   businessName: string;
@@ -152,32 +147,43 @@ export interface PheebsBrief {
   rating: number;
   reviewCount: number;
 
-  // Recommendation First (Above fold)
+  // 1. START HERE
   startHere: {
     topic: string;
-    confidence: ConfidenceLevel;
-    confidenceScore: number;
-    why: string;
+    headline: string;
+    paragraph: string;
     primaryConstraint: PrimaryConstraint;
+    confidence: ConfidenceLevel;
+    confidenceStars: string;
+    signalCount: number;
   };
-  whyNot: Array<{ topic: string; reason: string }>;
+
+  // 2. WHY?
+  whyParagraph: string;
+
+  // 3. EVIDENCE (Facts with ✓ / ✗)
+  evidenceFacts: Array<{ label: string; isPositive: boolean }>;
+
+  // 4. WHAT I'D ASK (Exactly 1 question)
   firstQuestion: string;
 
-  // Supporting Context & Priority Ranking (Below fold)
-  businessContext: string;
-  evidence: NormalizedEvidence[];
-  priorityRanking: PriorityItem[];
-  falsificationEvidence: string[];
-  unknowns: string[];
-  timeline: Array<{ minute: string; action: string }>;
-  questions: {
-    primary: string;
-    secondary: string[];
+  // 5. DON'T WASTE TIME ON (The Moat)
+  dontWasteTimeOn: {
+    topic: string;
+    reason: string;
   };
-  objections: Array<{ objection: string; response: string }>;
-  opening: string;
-  beforeYouAssume: string[];
-  goldenRule: GoldenRuleAnswers;
+
+  // 6. CONFIDENCE
+  confidenceStars: string;
+  confidenceLevel: ConfidenceLevel;
+  signalCount: number;
+
+  // 7. UNKNOWNS
+  unknowns: string[];
+
+  // 8. MEMORABLE FOOTER
+  memorableFooter: string;
+
   versions: StageVersions;
   generatedAt: string;
 }

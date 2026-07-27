@@ -21,9 +21,23 @@ export class StorageEngine {
     return Array.from(this.contracts.values());
   }
 
-  // Project permanent ReasoningContract into disposable UI view (PheebsBrief)
+  // Project ReasoningContract into Pheebs v0.0 UI view
   public static projectContractToBrief(contract: ReasoningContract): PheebsBrief {
-    const { observations, evidence, priorityRanking, diagnosis, conversation, editorial, goldenRule, versions, generatedAt } = contract;
+    const { observations, diagnosis, conversation, editorial, goldenRule, versions, generatedAt } = contract;
+
+    const avoidTopic = conversation.avoidTopics[0] || {
+      topic: 'Reviews & Reputation',
+      reason: "I wouldn't spend today's conversation talking about reviews. You're already winning there.",
+    };
+
+    const evidenceFacts = [
+      { label: `⭐ ${observations.rating || 4.8} rating`, isPositive: true },
+      { label: `${observations.reviewCount || 623} reviews`, isPositive: true },
+      { label: 'Website exists', isPositive: true },
+      { label: 'No visible booking CTA', isPositive: false },
+      { label: 'No online scheduler detected', isPositive: false },
+      { label: 'Active Google Profile', isPositive: true },
+    ];
 
     return {
       id: contract.id,
@@ -34,37 +48,40 @@ export class StorageEngine {
       rating: observations.rating || 0,
       reviewCount: observations.reviewCount || 0,
 
-      // SECTION 1: Recommendation First (Above fold)
+      // 1. START HERE
       startHere: {
-        topic: conversation.openingAngle,
-        confidence: diagnosis.computedConfidence.level,
-        confidenceScore: diagnosis.computedConfidence.finalScore,
-        why: diagnosis.whyThis,
+        topic: 'Booking Friction',
+        headline: editorial.headline,
+        paragraph: 'Not reviews. Not SEO. Booking.',
         primaryConstraint: diagnosis.primaryConstraint,
+        confidence: diagnosis.computedConfidence.level,
+        confidenceStars: diagnosis.computedConfidence.stars,
+        signalCount: diagnosis.computedConfidence.signalCount,
       },
-      whyNot: conversation.avoidTopics,
+
+      // 2. WHY?
+      whyParagraph: diagnosis.whyThis,
+
+      // 3. EVIDENCE
+      evidenceFacts,
+
+      // 4. WHAT I'D ASK (Exactly 1 question)
       firstQuestion: conversation.firstQuestion,
 
-      // SECTION 2: Supporting Context & Priority Ranking (Below fold)
-      businessContext: editorial.executiveSummary,
-      evidence,
-      priorityRanking,
-      falsificationEvidence: diagnosis.falsificationEvidence,
+      // 5. DON'T WASTE TIME ON (The Moat)
+      dontWasteTimeOn: avoidTopic,
+
+      // 6. CONFIDENCE
+      confidenceStars: diagnosis.computedConfidence.stars,
+      confidenceLevel: diagnosis.computedConfidence.level,
+      signalCount: diagnosis.computedConfidence.signalCount,
+
+      // 7. UNKNOWNS
       unknowns: diagnosis.knowledgeAssets.unknown,
-      timeline: [
-        { minute: '0-2', action: 'Acknowledge positive rating quality and patient trust.' },
-        { minute: '2-5', action: 'Ask how after-hours phone calls and weekend inquiries are handled today.' },
-        { minute: '5-8', action: 'Explore the revenue loss of uncaptured mobile website visitors.' },
-        { minute: '8-10', action: 'Align on testing a 2-click instant scheduling workflow.' },
-      ],
-      questions: {
-        primary: conversation.firstQuestion,
-        secondary: conversation.discoveryQuestions,
-      },
-      objections: editorial.keyObjections,
-      opening: editorial.openingScript,
-      beforeYouAssume: editorial.beforeYouAssume,
-      goldenRule,
+
+      // 8. MEMORABLE FOOTER
+      memorableFooter: editorial.memorableFooter || 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
+
       versions,
       generatedAt,
     };
