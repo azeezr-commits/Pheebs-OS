@@ -1,10 +1,11 @@
 /**
- * PHEEBS v0.0 — "Know where to start."
- * Domain Models & Reasoning Contract
+ * PHEEBS v0.0 — Product Reliability Initiative
+ * Domain Models, Evidence Verification, and Reasoning Contract
  */
 
 export type PrimaryConstraint = 'Visibility' | 'Trust' | 'Conversion' | 'Retention' | 'Operations' | 'Unknown';
 export type ConfidenceLevel = 'High' | 'Medium' | 'Low';
+export type VerificationStatus = 'Verified' | 'Unknown' | 'Unable to Verify';
 
 export interface StageVersions {
   observer: string;
@@ -22,6 +23,13 @@ export interface BusinessContext {
   targetPersona: string;
 }
 
+export interface FieldVerification {
+  fieldName: string;
+  value: string | number | boolean | undefined;
+  status: VerificationStatus;
+  source: string;
+}
+
 export interface ObservationData {
   businessName: string;
   category: string;
@@ -29,6 +37,7 @@ export interface ObservationData {
   website?: string;
   rating?: number;
   reviewCount?: number;
+  phone?: string;
   hasBookingLink: boolean;
   hoursListed: boolean;
   photosCount: number;
@@ -36,13 +45,15 @@ export interface ObservationData {
   locationType: 'Single Location' | 'Multi Location' | 'Virtual / Mobile';
   socialLinks: string[];
   observedAt: string;
+  verifications: Record<string, FieldVerification>;
 }
 
 export interface NormalizedEvidence {
   id: string;
-  type: string;        // e.g. 'booking_link', 'review_count', 'rating', 'photos'
+  type: string;
   value: string | number | boolean;
   source: string;
+  verificationStatus: VerificationStatus;
   isPositive?: boolean;
   label?: string;
 }
@@ -58,18 +69,17 @@ export interface PriorityItem {
 
 export interface KnownUnknownAssumptions {
   known: string[];
-  unknown: string[];        // Assets consumed by Stage 5 Conversation Engine
+  unknown: string[];
   assumptions: string[];
 }
 
 export interface ComputedConfidence {
-  evidenceScore: number;     // 0.0 - 1.0
-  coverage: number;          // 0.0 - 1.0
-  consistency: number;       // 0.0 - 1.0
-  finalScore: number;        // evidenceScore * coverage * consistency
-  level: ConfidenceLevel;
-  stars: string;             // e.g. '★★★★☆'
-  signalCount: number;
+  evidenceCoveragePercent: number; // e.g. 94% (Verified fields / Total required)
+  verifiedSignalsCount: number;    // e.g. 18
+  totalSignalsCount: number;       // e.g. 19
+  reasoningConfidence: ConfidenceLevel;
+  stars: string;                   // e.g. '★★★★☆'
+  finalScore: number;
 }
 
 export interface DiagnosisData {
@@ -112,6 +122,7 @@ export interface GoldenRuleAnswers {
 export interface ThinkingTrace {
   traceId: string;
   timestamp: string;
+  evidenceCoveragePercent: number;
   stages: {
     stage0_context: BusinessContext;
     stage1_observations: ObservationData;
@@ -137,15 +148,16 @@ export interface ReasoningContract {
   generatedAt: string;
 }
 
-// PHEEBS v0.0 UI View ("Know where to start.")
+// PHEEBS v0.0 UI View
 export interface PheebsBrief {
   id: string;
   businessName: string;
   category: string;
   address: string;
   website: string;
-  rating: number;
-  reviewCount: number;
+  rating?: number;
+  reviewCount?: number;
+  traceId?: string;
 
   // 1. START HERE
   startHere: {
@@ -155,19 +167,20 @@ export interface PheebsBrief {
     primaryConstraint: PrimaryConstraint;
     confidence: ConfidenceLevel;
     confidenceStars: string;
-    signalCount: number;
+    evidenceCoveragePercent: number;
+    verifiedSignalsCount: number;
   };
 
   // 2. WHY?
   whyParagraph: string;
 
-  // 3. EVIDENCE (Facts with ✓ / ✗)
-  evidenceFacts: Array<{ label: string; isPositive: boolean }>;
+  // 3. EVIDENCE
+  evidenceFacts: Array<{ label: string; isPositive: boolean; status: VerificationStatus }>;
 
-  // 4. WHAT I'D ASK (Exactly 1 question)
+  // 4. WHAT I'D ASK
   firstQuestion: string;
 
-  // 5. DON'T WASTE TIME ON (The Moat)
+  // 5. DON'T WASTE TIME ON
   dontWasteTimeOn: {
     topic: string;
     reason: string;
@@ -176,13 +189,17 @@ export interface PheebsBrief {
   // 6. CONFIDENCE
   confidenceStars: string;
   confidenceLevel: ConfidenceLevel;
-  signalCount: number;
+  evidenceCoveragePercent: number;
+  verifiedSignalsCount: number;
 
   // 7. UNKNOWNS
   unknowns: string[];
 
   // 8. MEMORABLE FOOTER
   memorableFooter: string;
+
+  // Developer Audit Data
+  fieldVerifications: Record<string, FieldVerification>;
 
   versions: StageVersions;
   generatedAt: string;

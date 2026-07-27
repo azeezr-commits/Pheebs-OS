@@ -6,9 +6,9 @@ import { BriefDocument } from '@/components/BriefDocument';
 import { PheebsBrief } from '@/packages/shared/types';
 
 const PRESET_ACCOUNTS = [
+  { name: 'Brooklyn Brows NYC', url: 'https://maps.google.com/?q=Brooklyn+Brows+NYC' },
   { name: 'Bright Smile Orthodontics', url: 'https://maps.google.com/?q=Bright+Smile+Orthodontics+San+Francisco' },
   { name: 'Evergreen Dental Care', url: 'https://maps.google.com/?q=Evergreen+Dental+Care+Seattle' },
-  { name: 'Apex Chiropractic', url: 'https://maps.google.com/?q=Apex+Spinal+Sports+Chiropractic+Austin' },
 ];
 
 export default function PheebsV0Page() {

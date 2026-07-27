@@ -1,6 +1,6 @@
 import { BusinessContext, ConversationObject, DiagnosisData, EditorialOutput, GoldenRuleAnswers, NormalizedEvidence, ObservationData, PriorityItem, ThinkingTrace } from '../shared/types';
 
-export const BRIEF_RENDERER_VERSION = '0.1';
+export const BRIEF_RENDERER_VERSION = '0.2';
 
 /**
  * Stage 6 — Brief Renderer (PHEEBS v0.0 UI Format)
@@ -37,8 +37,8 @@ export async function renderBrief(
   const topPriority = priorityRanking[0];
   const goldenRule: GoldenRuleAnswers = {
     whatObserved: [
-      `⭐ ${observations.rating} rating`,
-      `${observations.reviewCount} reviews`,
+      `⭐ ${observations.rating || 'Unrated'} rating`,
+      `${observations.reviewCount || 'Unverified'} reviews`,
       observations.hasBookingLink ? 'Visible booking CTA' : 'No visible booking CTA',
     ],
     whyItMatters: topPriority ? topPriority.importanceReason : 'Shapes prospective customer booking conversion.',
@@ -50,6 +50,7 @@ export async function renderBrief(
   const trace: ThinkingTrace = {
     traceId: `trace_${Date.now()}`,
     timestamp: new Date().toISOString(),
+    evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
     stages: {
       stage0_context: context,
       stage1_observations: observations,

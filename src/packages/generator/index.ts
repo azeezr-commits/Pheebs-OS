@@ -27,18 +27,19 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
       primaryConstraint: 'Conversion',
       confidence: 'High',
       confidenceStars: '★★★★☆',
-      signalCount: 14,
+      evidenceCoveragePercent: 94,
+      verifiedSignalsCount: 18,
     },
 
     whyParagraph: 'Customers already trust this business. The reviews prove that. The problem begins after that. There isn’t a clear path from "I like this place" to "I’m booking now." That’s where I’d spend my time.',
 
     evidenceFacts: [
-      { label: '⭐ 4.6 rating', isPositive: true },
-      { label: '142 reviews', isPositive: true },
-      { label: 'Website exists', isPositive: true },
-      { label: 'No visible booking CTA', isPositive: false },
-      { label: 'No online scheduler detected', isPositive: false },
-      { label: 'Active Google Profile', isPositive: true },
+      { label: '⭐ 4.6 rating', isPositive: true, status: 'Verified' },
+      { label: '142 reviews', isPositive: true, status: 'Verified' },
+      { label: 'Website exists', isPositive: true, status: 'Verified' },
+      { label: 'No visible booking CTA', isPositive: false, status: 'Unable to Verify' },
+      { label: 'No online scheduler detected', isPositive: false, status: 'Verified' },
+      { label: 'Active Google Profile', isPositive: true, status: 'Verified' },
     ],
 
     firstQuestion: '“What percentage of your appointments come from online bookings versus phone calls?”',
@@ -50,7 +51,8 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
 
     confidenceStars: '★★★★☆',
     confidenceLevel: 'High',
-    signalCount: 14,
+    evidenceCoveragePercent: 94,
+    verifiedSignalsCount: 18,
 
     unknowns: [
       'Booking software in use',
@@ -59,6 +61,14 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
     ],
 
     memorableFooter: 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
+
+    fieldVerifications: {
+      businessName: { fieldName: 'Business Name', value: formattedName || 'Bright Smile Orthodontics', status: 'Verified', source: 'Google Profile' },
+      rating: { fieldName: 'Rating', value: 4.6, status: 'Verified', source: 'Google Profile' },
+      reviewCount: { fieldName: 'Review Count', value: 142, status: 'Verified', source: 'Google Profile' },
+      website: { fieldName: 'Website URL', value: inputUrl, status: 'Verified', source: 'Google Profile' },
+      bookingLink: { fieldName: 'Booking CTA Link', value: 'Missing', status: 'Unable to Verify', source: 'DOM Audit' },
+    },
 
     versions: {
       observer: '1.2',

@@ -1,9 +1,10 @@
 import { BusinessContext, ComputedConfidence, DiagnosisData, KnownUnknownAssumptions, NormalizedEvidence, PriorityItem } from '../shared/types';
 
-export const JUDGMENT_VERSION = '0.3';
+export const JUDGMENT_VERSION = '0.4';
 
 /**
- * Stage 4 — Judgment Engine (AI Layer + Deterministic Confidence Computation)
+ * Stage 4 — Judgment Engine (Confidence Redesign)
+ * Separates Evidence Confidence (Coverage & Verification Accuracy) from Reasoning Confidence.
  */
 export async function executeJudgment(
   priorityRanking: PriorityItem[],
@@ -11,29 +12,27 @@ export async function executeJudgment(
   context: BusinessContext
 ): Promise<DiagnosisData> {
 
-  // 1. Compute Confidence Score & Stars Deterministically
-  const evidenceScore = Math.min(evidence.length / 5.0, 1.0);
-  const coverage = evidence.some((e) => e.type === 'booking_link') && evidence.some((e) => e.type === 'review_count') ? 0.9 : 0.6;
-  const consistency = 0.95;
+  // 1. Compute Evidence Coverage & Verified Signals
+  const verifiedCount = evidence.filter((e) => e.verificationStatus === 'Verified').length;
+  const totalCount = evidence.length > 0 ? evidence.length : 1;
+  const coveragePercent = Math.round((verifiedCount / totalCount) * 100);
 
-  const finalScore = Number((evidenceScore * coverage * consistency).toFixed(2));
-  const confidenceLevel = finalScore >= 0.7 ? 'High' : finalScore >= 0.4 ? 'Medium' : 'Low';
-  const stars = finalScore >= 0.8 ? '★★★★★' : finalScore >= 0.6 ? '★★★★☆' : finalScore >= 0.4 ? '★★★☆☆' : '★★☆☆☆';
+  const reasoningConfidence = coveragePercent >= 80 ? 'High' : coveragePercent >= 50 ? 'Medium' : 'Low';
+  const stars = coveragePercent >= 85 ? '★★★★★' : coveragePercent >= 70 ? '★★★★☆' : coveragePercent >= 50 ? '★★★☆☆' : '★★☆☆☆';
 
   const computedConfidence: ComputedConfidence = {
-    evidenceScore,
-    coverage,
-    consistency,
-    finalScore,
-    level: confidenceLevel,
+    evidenceCoveragePercent: coveragePercent,
+    verifiedSignalsCount: verifiedCount,
+    totalSignalsCount: totalCount,
+    reasoningConfidence,
     stars,
-    signalCount: 14,
+    finalScore: Number((coveragePercent / 100).toFixed(2)),
   };
 
   // 2. Structured Knowledge Assets
   const known = [
-    `Rating is ⭐ ${evidence.find((e) => e.type === 'rating')?.value || 'N/A'} stars`,
-    `Review count is ${evidence.find((e) => e.type === 'review_count')?.value || 'N/A'} total reviews`,
+    `Rating is ⭐ ${evidence.find((e) => e.type === 'rating')?.value || 'Unrated'}`,
+    `Review count is ${evidence.find((e) => e.type === 'review_count')?.value || 'Unverified'} total reviews`,
     `Booking CTA is ${evidence.find((e) => e.type === 'booking_link')?.value || 'missing'}`,
   ];
 

@@ -23,20 +23,44 @@ export class StorageEngine {
 
   // Project ReasoningContract into Pheebs v0.0 UI view
   public static projectContractToBrief(contract: ReasoningContract): PheebsBrief {
-    const { observations, diagnosis, conversation, editorial, goldenRule, versions, generatedAt } = contract;
+    const { observations, diagnosis, conversation, editorial, versions, generatedAt } = contract;
 
     const avoidTopic = conversation.avoidTopics[0] || {
       topic: 'Reviews & Reputation',
       reason: "I wouldn't spend today's conversation talking about reviews. You're already winning there.",
     };
 
-    const evidenceFacts = [
-      { label: `⭐ ${observations.rating || 4.8} rating`, isPositive: true },
-      { label: `${observations.reviewCount || 623} reviews`, isPositive: true },
-      { label: 'Website exists', isPositive: true },
-      { label: 'No visible booking CTA', isPositive: false },
-      { label: 'No online scheduler detected', isPositive: false },
-      { label: 'Active Google Profile', isPositive: true },
+    const evidenceFacts: Array<{ label: string; isPositive: boolean; status: 'Verified' | 'Unknown' | 'Unable to Verify' }> = [
+      {
+        label: observations.rating ? `⭐ ${observations.rating} rating` : '⭐ Rating unverified',
+        isPositive: (observations.rating || 0) >= 4.0,
+        status: (observations.verifications.rating?.status as any) || 'Unknown',
+      },
+      {
+        label: observations.reviewCount !== undefined ? `${observations.reviewCount} reviews` : 'Review count unverified',
+        isPositive: (observations.reviewCount || 0) >= 30,
+        status: (observations.verifications.reviewCount?.status as any) || 'Unknown',
+      },
+      {
+        label: 'Website exists',
+        isPositive: true,
+        status: (observations.verifications.website?.status as any) || 'Verified',
+      },
+      {
+        label: observations.hasBookingLink ? 'Visible booking CTA' : 'No visible booking CTA',
+        isPositive: observations.hasBookingLink,
+        status: (observations.verifications.bookingLink?.status as any) || 'Unable to Verify',
+      },
+      {
+        label: 'No online scheduler detected',
+        isPositive: false,
+        status: 'Verified',
+      },
+      {
+        label: 'Active Google Profile',
+        isPositive: true,
+        status: (observations.verifications.businessName?.status as any) || 'Verified',
+      },
     ];
 
     return {
@@ -45,8 +69,9 @@ export class StorageEngine {
       category: observations.category,
       address: observations.address,
       website: observations.website || '',
-      rating: observations.rating || 0,
-      reviewCount: observations.reviewCount || 0,
+      rating: observations.rating,
+      reviewCount: observations.reviewCount,
+      traceId: contract.trace.traceId,
 
       // 1. START HERE
       startHere: {
@@ -54,9 +79,10 @@ export class StorageEngine {
         headline: editorial.headline,
         paragraph: 'Not reviews. Not SEO. Booking.',
         primaryConstraint: diagnosis.primaryConstraint,
-        confidence: diagnosis.computedConfidence.level,
+        confidence: diagnosis.computedConfidence.reasoningConfidence,
         confidenceStars: diagnosis.computedConfidence.stars,
-        signalCount: diagnosis.computedConfidence.signalCount,
+        evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
+        verifiedSignalsCount: diagnosis.computedConfidence.verifiedSignalsCount,
       },
 
       // 2. WHY?
@@ -65,22 +91,26 @@ export class StorageEngine {
       // 3. EVIDENCE
       evidenceFacts,
 
-      // 4. WHAT I'D ASK (Exactly 1 question)
+      // 4. WHAT I'D ASK
       firstQuestion: conversation.firstQuestion,
 
-      // 5. DON'T WASTE TIME ON (The Moat)
+      // 5. DON'T WASTE TIME ON
       dontWasteTimeOn: avoidTopic,
 
       // 6. CONFIDENCE
       confidenceStars: diagnosis.computedConfidence.stars,
-      confidenceLevel: diagnosis.computedConfidence.level,
-      signalCount: diagnosis.computedConfidence.signalCount,
+      confidenceLevel: diagnosis.computedConfidence.reasoningConfidence,
+      evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
+      verifiedSignalsCount: diagnosis.computedConfidence.verifiedSignalsCount,
 
       // 7. UNKNOWNS
       unknowns: diagnosis.knowledgeAssets.unknown,
 
       // 8. MEMORABLE FOOTER
       memorableFooter: editorial.memorableFooter || 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
+
+      // Developer Audit Data
+      fieldVerifications: observations.verifications,
 
       versions,
       generatedAt,

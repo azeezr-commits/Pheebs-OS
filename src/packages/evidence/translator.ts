@@ -1,22 +1,21 @@
 import { NormalizedEvidence, ObservationData } from '../shared/types';
 
-export const EVIDENCE_VERSION = '1.0';
+export const EVIDENCE_VERSION = '1.1';
 
 /**
  * Stage 2 — Evidence Normalizer (Deterministic)
- * Normalizes raw observations into standardized facts.
- * Rule: STRICTLY NO INTERPRETATION. (No 'Friction' or 'Deficit' labels!)
- * Interpretation belongs strictly in Stage 3 (Prioritization).
+ * Normalizes verified observations into standardized primitives.
  */
 export async function normalizeEvidence(observations: ObservationData): Promise<NormalizedEvidence[]> {
   const evidence: NormalizedEvidence[] = [];
 
-  // 1. Booking Link State
+  // 1. Booking Link
   evidence.push({
     id: 'ev_booking_link',
     type: 'booking_link',
     value: observations.hasBookingLink ? 'present' : 'missing',
     source: 'Website & GBP Audit',
+    verificationStatus: observations.verifications.bookingLink?.status || 'Unable to Verify',
   });
 
   // 2. Review Volume Number
@@ -26,6 +25,7 @@ export async function normalizeEvidence(observations: ObservationData): Promise<
       type: 'review_count',
       value: observations.reviewCount,
       source: 'Google Business Profile',
+      verificationStatus: observations.verifications.reviewCount?.status || 'Verified',
     });
   }
 
@@ -36,6 +36,7 @@ export async function normalizeEvidence(observations: ObservationData): Promise<
       type: 'rating',
       value: observations.rating,
       source: 'Google Business Profile',
+      verificationStatus: observations.verifications.rating?.status || 'Verified',
     });
   }
 
@@ -45,23 +46,19 @@ export async function normalizeEvidence(observations: ObservationData): Promise<
     type: 'photos_count',
     value: observations.photosCount,
     source: 'GBP Metadata',
+    verificationStatus: 'Verified',
   });
 
-  // 5. Operating Hours State
-  evidence.push({
-    id: 'ev_hours',
-    type: 'hours_listed',
-    value: observations.hoursListed ? 'verified' : 'unspecified',
-    source: 'GBP Metadata',
-  });
-
-  // 6. Location Footprint Type
-  evidence.push({
-    id: 'ev_location_type',
-    type: 'location_type',
-    value: observations.locationType,
-    source: 'Directory Audit',
-  });
+  // 5. Phone Verification
+  if (observations.phone) {
+    evidence.push({
+      id: 'ev_phone',
+      type: 'phone',
+      value: observations.phone,
+      source: 'Google Business Profile',
+      verificationStatus: 'Verified',
+    });
+  }
 
   return evidence;
 }
