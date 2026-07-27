@@ -47,8 +47,11 @@ export default function PheebsV0Page() {
       });
 
       if (!res.ok) {
+        clearInterval(stepInterval);
         const err = await res.json();
-        throw new Error(err.error || 'Failed to prepare brief');
+        setErrorMsg(err.error || "I couldn't confidently identify the business. Please provide another Google Business Profile.");
+        setIsGenerating(false);
+        return;
       }
 
       const data: PheebsBrief = await res.json();
@@ -164,9 +167,18 @@ export default function PheebsV0Page() {
 
             {/* Error Message */}
             {errorMsg && (
-              <p style={{ color: '#C2410C', fontSize: '13px', marginTop: '14px' }}>
+              <div style={{
+                background: '#FFF7ED',
+                border: '1px solid #FDBA74',
+                color: '#C2410C',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontSize: '13.5px',
+                marginTop: '20px',
+                textAlign: 'center',
+              }}>
                 {errorMsg}
-              </p>
+              </div>
             )}
 
             {/* Preset Samples */}
