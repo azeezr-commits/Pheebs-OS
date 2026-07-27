@@ -1,57 +1,59 @@
-import { NormalizedEvidence, ObservationData } from '../shared/types';
+import { NormalizedEvidence, ObservationData, ObservationStatus } from '../shared/types';
 
-export const EVIDENCE_VERSION = '1.2';
+export const EVIDENCE_VERSION = '2.0';
 
 /**
- * Stage 2 — Evidence Normalizer (Deterministic)
- * Converts ONLY verified observation fields into normalized primitives.
+ * Stage 2 — Evidence Builder (Decouples Raw Observations)
+ * Transforms verified/plausible observations into abstract high-level evidence primitives.
+ * The Judgment Engine never sees raw HTML or Schema.org nodes!
  */
-export async function normalizeEvidence(observations: ObservationData): Promise<NormalizedEvidence[]> {
+export async function buildEvidence(observations: ObservationData): Promise<NormalizedEvidence[]> {
   const evidence: NormalizedEvidence[] = [];
 
-  // 1. Booking Link
+  // 1. Intake Channel & Booking CTA
   evidence.push({
     id: 'ev_booking_link',
     type: 'booking_link',
     value: observations.hasBookingLink.value ? 'present' : 'missing',
     source: observations.hasBookingLink.source,
-    verificationStatus: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
+    verificationStatus: observations.hasBookingLink.status,
     confidence: observations.hasBookingLink.confidence,
+    strength: observations.hasBookingLink.value ? 'High' : 'Low',
+    isPositive: observations.hasBookingLink.value,
+    label: 'Intake Channel & Booking Infrastructure',
   });
 
-  // 2. Review Count
-  if (observations.reviewCount && observations.reviewCount.verified) {
+  // 2. Social Proof Density
+  if (observations.reviewCount && observations.reviewCount.status !== ObservationStatus.MISSING && observations.reviewCount.status !== ObservationStatus.INVALID) {
+    const revCount = observations.reviewCount.value || 0;
+    const strength = revCount >= 100 ? 'High' : revCount >= 30 ? 'Medium' : 'Low';
+
     evidence.push({
       id: 'ev_review_count',
       type: 'review_count',
-      value: observations.reviewCount.value,
+      value: revCount,
       source: observations.reviewCount.source,
-      verificationStatus: 'Verified',
+      verificationStatus: observations.reviewCount.status,
       confidence: observations.reviewCount.confidence,
+      strength,
+      isPositive: revCount >= 30,
+      label: 'Social Proof Density & Customer Ratings',
     });
   }
 
-  // 3. Rating
-  if (observations.rating && observations.rating.verified) {
+  // 3. Customer Sentiment Rating
+  if (observations.rating && observations.rating.status !== ObservationStatus.MISSING && observations.rating.status !== ObservationStatus.INVALID) {
+    const ratingVal = observations.rating.value || 0;
     evidence.push({
       id: 'ev_rating',
       type: 'rating',
-      value: observations.rating.value,
+      value: ratingVal,
       source: observations.rating.source,
-      verificationStatus: 'Verified',
+      verificationStatus: observations.rating.status,
       confidence: observations.rating.confidence,
-    });
-  }
-
-  // 4. Photos Count
-  if (observations.photosCount && observations.photosCount.verified) {
-    evidence.push({
-      id: 'ev_photos',
-      type: 'photos_count',
-      value: observations.photosCount.value,
-      source: observations.photosCount.source,
-      verificationStatus: 'Verified',
-      confidence: observations.photosCount.confidence,
+      strength: ratingVal >= 4.5 ? 'High' : 'Medium',
+      isPositive: ratingVal >= 4.0,
+      label: 'Public Customer Sentiment Rating',
     });
   }
 

@@ -1,4 +1,5 @@
-import { PheebsBrief, ReasoningContract, VerificationStatus } from '../shared/types';
+import { buildObservationReport } from '../observer/observationReport';
+import { DeveloperObservationReport, ObservationStatus, PheebsBrief, ReasoningContract } from '../shared/types';
 
 export class StorageEngine {
   private static contracts: Map<string, ReasoningContract> = new Map();
@@ -22,7 +23,10 @@ export class StorageEngine {
   }
 
   // Project ReasoningContract into Pheebs v0.0 UI view
-  public static projectContractToBrief(contract: ReasoningContract): PheebsBrief {
+  public static projectContractToBrief(
+    contract: ReasoningContract,
+    customReport?: DeveloperObservationReport
+  ): PheebsBrief {
     const { observations, diagnosis, conversation, editorial, versions, generatedAt } = contract;
 
     const avoidTopic = conversation.avoidTopics[0] || {
@@ -30,80 +34,43 @@ export class StorageEngine {
       reason: "I wouldn't spend today's conversation talking about reviews. You're already winning there.",
     };
 
-    const isRatingVerified = observations.rating?.verified || false;
-    const isReviewVerified = observations.reviewCount?.verified || false;
+    const isRatingVerified = observations.rating?.status === ObservationStatus.VERIFIED || observations.rating?.status === ObservationStatus.PLAUSIBLE;
+    const isReviewVerified = observations.reviewCount?.status === ObservationStatus.VERIFIED || observations.reviewCount?.status === ObservationStatus.PLAUSIBLE;
 
-    const evidenceFacts: Array<{ label: string; isPositive: boolean; status: VerificationStatus }> = [
+    const evidenceFacts: Array<{ label: string; isPositive: boolean; status: ObservationStatus }> = [
       {
         label: isRatingVerified ? `⭐ ${observations.rating!.value} rating` : '⭐ Rating unverified',
         isPositive: isRatingVerified && (observations.rating!.value >= 4.0),
-        status: isRatingVerified ? 'Verified' : 'Unknown',
+        status: observations.rating?.status || ObservationStatus.MISSING,
       },
       {
         label: isReviewVerified ? `${observations.reviewCount!.value} reviews` : 'Review count unverified',
         isPositive: isReviewVerified && (observations.reviewCount!.value >= 30),
-        status: isReviewVerified ? 'Verified' : 'Unknown',
+        status: observations.reviewCount?.status || ObservationStatus.MISSING,
       },
       {
         label: 'Website exists',
-        isPositive: observations.website?.verified || false,
-        status: observations.website?.verified ? 'Verified' : 'Unknown',
+        isPositive: observations.website?.status === ObservationStatus.VERIFIED || observations.website?.status === ObservationStatus.PLAUSIBLE,
+        status: observations.website?.status || ObservationStatus.MISSING,
       },
       {
         label: observations.hasBookingLink.value ? 'Visible booking CTA' : 'No visible booking CTA',
         isPositive: observations.hasBookingLink.value,
-        status: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
+        status: observations.hasBookingLink.status,
       },
       {
         label: 'No online scheduler detected',
         isPositive: false,
-        status: 'Verified',
+        status: ObservationStatus.VERIFIED,
       },
       {
         label: 'Active Google Profile',
-        isPositive: observations.businessName.verified,
-        status: observations.businessName.verified ? 'Verified' : 'Unknown',
+        isPositive: observations.businessName.status === ObservationStatus.VERIFIED || observations.businessName.status === ObservationStatus.PLAUSIBLE,
+        status: observations.businessName.status,
       },
     ];
 
-    const fieldVerifications: Record<string, { value: any; status: VerificationStatus; source: string; confidence: number }> = {
-      businessName: {
-        value: observations.businessName.value,
-        status: observations.businessName.verified ? 'Verified' : 'Unknown',
-        source: observations.businessName.source,
-        confidence: observations.businessName.confidence,
-      },
-      website: {
-        value: observations.website?.value || 'N/A',
-        status: observations.website?.verified ? 'Verified' : 'Unknown',
-        source: observations.website?.source || 'Canonical Link',
-        confidence: observations.website?.confidence || 0,
-      },
-      address: {
-        value: observations.address.value,
-        status: observations.address.verified ? 'Verified' : 'Unknown',
-        source: observations.address.source,
-        confidence: observations.address.confidence,
-      },
-      rating: {
-        value: observations.rating?.value || 'Unverified',
-        status: isRatingVerified ? 'Verified' : 'Unknown',
-        source: observations.rating?.source || 'Google Profile',
-        confidence: observations.rating?.confidence || 0,
-      },
-      reviewCount: {
-        value: observations.reviewCount?.value || 'Unverified',
-        status: isReviewVerified ? 'Verified' : 'Unknown',
-        source: observations.reviewCount?.source || 'Google Profile',
-        confidence: observations.reviewCount?.confidence || 0,
-      },
-      bookingLink: {
-        value: observations.hasBookingLink.value ? 'Present' : 'Missing',
-        status: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
-        source: observations.hasBookingLink.source,
-        confidence: observations.hasBookingLink.confidence,
-      },
-    };
+    const observationReport = customReport || buildObservationReport(observations);
 
     return {
       id: contract.id,
@@ -123,8 +90,8 @@ export class StorageEngine {
         primaryConstraint: diagnosis.primaryConstraint,
         confidence: diagnosis.computedConfidence.reasoningConfidence,
         confidenceStars: diagnosis.computedConfidence.stars,
-        evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
-        verifiedSignalsCount: diagnosis.computedConfidence.verifiedSignalsCount,
+        evidenceCoveragePercent: observationReport.overallConfidencePercent,
+        verifiedSignalsCount: Object.values(observationReport.criticalFieldsStatus).filter((s) => s === ObservationStatus.VERIFIED || s === ObservationStatus.PLAUSIBLE).length,
       },
 
       // 2. WHY?
@@ -142,8 +109,8 @@ export class StorageEngine {
       // 6. CONFIDENCE
       confidenceStars: diagnosis.computedConfidence.stars,
       confidenceLevel: diagnosis.computedConfidence.reasoningConfidence,
-      evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
-      verifiedSignalsCount: diagnosis.computedConfidence.verifiedSignalsCount,
+      evidenceCoveragePercent: observationReport.overallConfidencePercent,
+      verifiedSignalsCount: Object.values(observationReport.criticalFieldsStatus).filter((s) => s === ObservationStatus.VERIFIED || s === ObservationStatus.PLAUSIBLE).length,
 
       // 7. UNKNOWNS
       unknowns: diagnosis.knowledgeAssets.unknown,
@@ -151,8 +118,8 @@ export class StorageEngine {
       // 8. MEMORABLE FOOTER
       memorableFooter: editorial.memorableFooter || 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
 
-      // Developer Audit Data
-      fieldVerifications,
+      // Developer Observation Report
+      observationReport,
 
       versions,
       generatedAt,

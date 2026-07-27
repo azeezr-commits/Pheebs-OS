@@ -1,4 +1,10 @@
-import { Gate1Result, ObservationData } from '../shared/types';
+import { ObservationData, ObservationStatus } from '../shared/types';
+
+export interface Gate1Result {
+  passed: boolean;
+  failureReason?: string;
+  rejectedFields: string[];
+}
 
 /**
  * Gate 1 — Observation Validation Gate (Before Reasoning)
@@ -10,16 +16,18 @@ export function evaluateObservationGate(obs: ObservationData): Gate1Result {
 
   // 1. Business Name Check
   const bName = (obs.businessName.value || '').trim();
-  if (!obs.businessName.verified || bName.toLowerCase() === 'maps' || bName.toLowerCase() === 'google' || bName.length < 3) {
+  const isNameValid = obs.businessName.status === ObservationStatus.VERIFIED || obs.businessName.status === ObservationStatus.PLAUSIBLE;
+
+  if (!isNameValid || bName.toLowerCase() === 'maps' || bName.toLowerCase() === 'google' || bName.length < 3) {
     rejectedFields.push('businessName');
   }
 
-  // 2. Website URL Check (maps.app.goo.gl is NOT a company website!)
+  // 2. Website URL Check
   if (obs.website) {
     const webVal = (obs.website.value || '').toLowerCase();
     if (webVal.includes('maps.app.goo.gl') || webVal.includes('google.com/maps')) {
       rejectedFields.push('website');
-      obs.website.verified = false;
+      obs.website.status = ObservationStatus.QUESTIONABLE;
       obs.website.confidence = 0.12;
     }
   }
@@ -30,7 +38,6 @@ export function evaluateObservationGate(obs: ObservationData): Gate1Result {
     rejectedFields.push('address');
   }
 
-  // Critical failure if Business Name is invalid
   if (rejectedFields.includes('businessName')) {
     return {
       passed: false,

@@ -1,4 +1,4 @@
-import { BusinessContext, ComputedConfidence, DiagnosisData, KnownUnknownHypotheses, NormalizedEvidence, PriorityItem } from '../shared/types';
+import { BusinessContext, ComputedConfidence, DiagnosisData, KnownUnknownHypotheses, NormalizedEvidence, ObservationStatus, PriorityItem } from '../shared/types';
 
 export const JUDGMENT_VERSION = '0.5';
 
@@ -12,7 +12,7 @@ export async function executeJudgment(
 ): Promise<DiagnosisData> {
 
   // 1. Compute Evidence Coverage & Verified Signals
-  const verifiedCount = evidence.filter((e) => e.verificationStatus === 'Verified').length;
+  const verifiedCount = evidence.filter((e) => e.verificationStatus === ObservationStatus.VERIFIED || e.verificationStatus === ObservationStatus.PLAUSIBLE).length;
   const totalCount = evidence.length > 0 ? evidence.length : 1;
   const coveragePercent = Math.round((verifiedCount / totalCount) * 100);
 
@@ -50,7 +50,7 @@ export async function executeJudgment(
 
   // 3. Select Primary Constraint
   const topPriority = priorityRanking[0];
-  const hasReviewsVerified = evidence.some((e) => e.type === 'review_count' && e.verificationStatus === 'Verified');
+  const hasReviewsVerified = evidence.some((e) => e.type === 'review_count' && (e.verificationStatus === ObservationStatus.VERIFIED || e.verificationStatus === ObservationStatus.PLAUSIBLE));
 
   if (topPriority && topPriority.evidenceType === 'booking_link') {
     const whyThis = hasReviewsVerified

@@ -51,8 +51,7 @@ export async function renderBrief(
     traceId: `trace_${Date.now()}`,
     timestamp: new Date().toISOString(),
     evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
-    gate1Status: { passed: true, rejectedFields: [] },
-    gate2Status: { passed: true, rejectedClaims: [], correctedClaims: [] },
+    realityCheckStatus: { passed: true, rejectedClaims: [], correctedClaims: [] },
     stages: {
       stage0_context: context,
       stage1_observations: observations,

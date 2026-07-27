@@ -2,7 +2,7 @@
  * Brief by Pheebs — High-Conviction Brief Generator Engine (PHEEBS v0.0 UI Format)
  */
 
-import { PheebsBrief } from '../shared/types';
+import { ObservationStatus, PheebsBrief } from '../shared/types';
 
 export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
   const id = `brief_${Date.now()}`;
@@ -10,6 +10,26 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
 
   const cleanName = inputUrl.replace(/^https?:\/\//, '').split('/')[0].replace('www.', '');
   const formattedName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+  const report = {
+    overallConfidencePercent: 94,
+    criticalFieldsStatus: {
+      businessName: ObservationStatus.VERIFIED,
+      website: ObservationStatus.VERIFIED,
+      address: ObservationStatus.VERIFIED,
+      rating: ObservationStatus.VERIFIED,
+      reviewCount: ObservationStatus.VERIFIED,
+      hasBookingLink: ObservationStatus.VERIFIED,
+    },
+    fields: {
+      businessName: { fieldName: 'businessName', value: formattedName || 'Bright Smile Orthodontics', status: ObservationStatus.VERIFIED, source: 'Google Profile', confidence: 0.99, extractedBy: 'schema-parser' },
+      rating: { fieldName: 'rating', value: 4.6, status: ObservationStatus.VERIFIED, source: 'Google Profile', confidence: 0.98, extractedBy: 'schema-parser' },
+      reviewCount: { fieldName: 'reviewCount', value: 142, status: ObservationStatus.VERIFIED, source: 'Google Profile', confidence: 0.98, extractedBy: 'schema-parser' },
+      website: { fieldName: 'website', value: inputUrl, status: ObservationStatus.VERIFIED, source: 'Google Profile', confidence: 0.95, extractedBy: 'canonical-link' },
+      bookingLink: { fieldName: 'bookingLink', value: 'Missing', status: ObservationStatus.MISSING, source: 'DOM Audit', confidence: 0.9, extractedBy: 'dom-parser' },
+    },
+    recoveryAttempts: [],
+  };
 
   return {
     id,
@@ -34,12 +54,12 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
     whyParagraph: 'Customers already trust this business. The reviews prove that. The problem begins after that. There isn’t a clear path from "I like this place" to "I’m booking now." That’s where I’d spend my time.',
 
     evidenceFacts: [
-      { label: '⭐ 4.6 rating', isPositive: true, status: 'Verified' },
-      { label: '142 reviews', isPositive: true, status: 'Verified' },
-      { label: 'Website exists', isPositive: true, status: 'Verified' },
-      { label: 'No visible booking CTA', isPositive: false, status: 'Unable to Verify' },
-      { label: 'No online scheduler detected', isPositive: false, status: 'Verified' },
-      { label: 'Active Google Profile', isPositive: true, status: 'Verified' },
+      { label: '⭐ 4.6 rating', isPositive: true, status: ObservationStatus.VERIFIED },
+      { label: '142 reviews', isPositive: true, status: ObservationStatus.VERIFIED },
+      { label: 'Website exists', isPositive: true, status: ObservationStatus.VERIFIED },
+      { label: 'No visible booking CTA', isPositive: false, status: ObservationStatus.MISSING },
+      { label: 'No online scheduler detected', isPositive: false, status: ObservationStatus.VERIFIED },
+      { label: 'Active Google Profile', isPositive: true, status: ObservationStatus.VERIFIED },
     ],
 
     firstQuestion: '“What percentage of your appointments come from online bookings versus phone calls?”',
@@ -62,21 +82,15 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
 
     memorableFooter: 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
 
-    fieldVerifications: {
-      businessName: { value: formattedName || 'Bright Smile Orthodontics', status: 'Verified', source: 'Google Profile', confidence: 0.99 },
-      rating: { value: 4.6, status: 'Verified', source: 'Google Profile', confidence: 0.98 },
-      reviewCount: { value: 142, status: 'Verified', source: 'Google Profile', confidence: 0.98 },
-      website: { value: inputUrl, status: 'Verified', source: 'Google Profile', confidence: 0.95 },
-      bookingLink: { value: 'Missing', status: 'Unable to Verify', source: 'DOM Audit', confidence: 0.9 },
-    },
+    observationReport: report,
 
     versions: {
-      observer: '1.2',
-      evidence: '1.0',
+      observer: '2.0',
+      evidence: '2.0',
       prioritization: '0.4',
-      judgment: '0.3',
+      judgment: '0.5',
       conversation: '0.2',
-      renderer: '0.1',
+      renderer: '0.2',
     },
     generatedAt: timestamp,
   };

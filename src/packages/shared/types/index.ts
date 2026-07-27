@@ -1,11 +1,18 @@
 /**
- * PHEEBS v0.0 — Product Reliability & Two-Gate Architecture
- * Domain Models, Field Metadata, Gate 1 & Gate 2 Contracts
+ * PHEEBS Permanent Production Architecture
+ * 5-State Observation Quality, Field Provenance & Reasoning Contract
  */
+
+export enum ObservationStatus {
+  VERIFIED = 'VERIFIED',
+  PLAUSIBLE = 'PLAUSIBLE',
+  QUESTIONABLE = 'QUESTIONABLE',
+  INVALID = 'INVALID',
+  MISSING = 'MISSING',
+}
 
 export type PrimaryConstraint = 'Visibility' | 'Trust' | 'Conversion' | 'Retention' | 'Operations' | 'Unknown';
 export type ConfidenceLevel = 'High' | 'Medium' | 'Low';
-export type VerificationStatus = 'Verified' | 'Unknown' | 'Unable to Verify';
 
 export interface StageVersions {
   observer: string;
@@ -23,38 +30,50 @@ export interface BusinessContext {
   targetPersona: string;
 }
 
-export interface FieldMetadata<T = any> {
+export interface Provenance<T = any> {
   value: T;
   source: string;
+  extractedBy: string;
+  observedAt: string;
+  normalizedBy: string;
   confidence: number; // 0.0 to 1.0
-  verified: boolean;
-  extractedAt: string;
+  status: ObservationStatus;
 }
 
 export interface ObservationData {
-  businessName: FieldMetadata<string>;
-  category: FieldMetadata<string>;
-  address: FieldMetadata<string>;
-  website?: FieldMetadata<string>;
-  rating?: FieldMetadata<number>;
-  reviewCount?: FieldMetadata<number>;
-  phone?: FieldMetadata<string>;
-  hasBookingLink: FieldMetadata<boolean>;
-  hoursListed: FieldMetadata<boolean>;
-  photosCount: FieldMetadata<number>;
-  servicesList: FieldMetadata<string[]>;
-  locationType: FieldMetadata<'Single Location' | 'Multi Location' | 'Virtual / Mobile'>;
-  socialLinks: FieldMetadata<string[]>;
+  businessName: Provenance<string>;
+  category: Provenance<string>;
+  address: Provenance<string>;
+  website?: Provenance<string>;
+  rating?: Provenance<number>;
+  reviewCount?: Provenance<number>;
+  phone?: Provenance<string>;
+  hasBookingLink: Provenance<boolean>;
+  hoursListed: Provenance<boolean>;
+  photosCount: Provenance<number>;
+  servicesList: Provenance<string[]>;
+  locationType: Provenance<'Single Location' | 'Multi Location' | 'Virtual / Mobile'>;
+  socialLinks: Provenance<string[]>;
   observedAt: string;
 }
 
-export interface Gate1Result {
-  passed: boolean;
-  failureReason?: string;
-  rejectedFields: string[];
+export interface FieldObservationReport {
+  fieldName: string;
+  value: any;
+  status: ObservationStatus;
+  source: string;
+  confidence: number;
+  extractedBy: string;
 }
 
-export interface Gate2Result {
+export interface DeveloperObservationReport {
+  overallConfidencePercent: number; // Weighted by field dominance
+  criticalFieldsStatus: Record<string, ObservationStatus>;
+  fields: Record<string, FieldObservationReport>;
+  recoveryAttempts: string[];
+}
+
+export interface RealityCheckResult {
   passed: boolean;
   rejectedClaims: string[];
   correctedClaims: string[];
@@ -65,8 +84,9 @@ export interface NormalizedEvidence {
   type: string;
   value: string | number | boolean;
   source: string;
-  verificationStatus: VerificationStatus;
+  verificationStatus: ObservationStatus;
   confidence: number;
+  strength?: 'High' | 'Medium' | 'Low';
   isPositive?: boolean;
   label?: string;
 }
@@ -83,15 +103,15 @@ export interface PriorityItem {
 export interface KnownUnknownHypotheses {
   known: string[];
   unknown: string[];
-  hypotheses: string[]; // Replaces assumptions before judgment!
+  hypotheses: string[];
 }
 
 export interface ComputedConfidence {
-  evidenceCoveragePercent: number; // e.g. 94% (Verified fields / Total required)
-  verifiedSignalsCount: number;    // e.g. 18
-  totalSignalsCount: number;       // e.g. 19
+  evidenceCoveragePercent: number;
+  verifiedSignalsCount: number;
+  totalSignalsCount: number;
   reasoningConfidence: ConfidenceLevel;
-  stars: string;                   // e.g. '★★★★☆'
+  stars: string;
   finalScore: number;
 }
 
@@ -136,8 +156,7 @@ export interface ThinkingTrace {
   traceId: string;
   timestamp: string;
   evidenceCoveragePercent: number;
-  gate1Status: Gate1Result;
-  gate2Status: Gate2Result;
+  realityCheckStatus: RealityCheckResult;
   stages: {
     stage0_context: BusinessContext;
     stage1_observations: ObservationData;
@@ -190,7 +209,7 @@ export interface PheebsBrief {
   whyParagraph: string;
 
   // 3. EVIDENCE
-  evidenceFacts: Array<{ label: string; isPositive: boolean; status: VerificationStatus }>;
+  evidenceFacts: Array<{ label: string; isPositive: boolean; status: ObservationStatus }>;
 
   // 4. WHAT I'D ASK
   firstQuestion: string;
@@ -213,8 +232,8 @@ export interface PheebsBrief {
   // 8. MEMORABLE FOOTER
   memorableFooter: string;
 
-  // Developer Audit Data
-  fieldVerifications: Record<string, { value: any; status: VerificationStatus; source: string; confidence: number }>;
+  // Developer Observation Report
+  observationReport: DeveloperObservationReport;
 
   versions: StageVersions;
   generatedAt: string;

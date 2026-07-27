@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PheebsBrief } from '@/packages/shared/types';
+import { ObservationStatus, PheebsBrief } from '@/packages/shared/types';
 import { DeveloperModeDrawer } from './DeveloperModeDrawer';
 import { motion } from 'framer-motion';
 
@@ -140,8 +140,8 @@ export const BriefDocument: React.FC<BriefDocumentProps> = ({ brief, onReset }) 
               <span style={{
                 fontSize: '10px',
                 fontWeight: 600,
-                color: fact.status === 'Verified' ? '#16A34A' : '#C2410C',
-                background: fact.status === 'Verified' ? '#F0FDF4' : '#FFF7ED',
+                color: (fact.status === ObservationStatus.VERIFIED || fact.status === ObservationStatus.PLAUSIBLE) ? '#16A34A' : '#C2410C',
+                background: (fact.status === ObservationStatus.VERIFIED || fact.status === ObservationStatus.PLAUSIBLE) ? '#F0FDF4' : '#FFF7ED',
                 padding: '2px 6px',
                 borderRadius: '4px',
               }}>

@@ -1,23 +1,23 @@
-import { DiagnosisData, Gate2Result, ObservationData } from '../shared/types';
+import { DiagnosisData, ObservationData, ObservationStatus, RealityCheckResult } from '../shared/types';
 
 /**
- * Gate 2 — Consistency Gate (Before Speaking)
- * Audits generated judgment statements against verified observations.
- * Rule: Unknown observations may ONLY generate questions—NEVER conclusions!
+ * Reality Check (Before Speaking)
+ * Audits generated judgment conclusions against verified facts.
+ * Log: [Reality Check] Status: PASSED
  */
-export function evaluateConsistencyGate(
+export function executeRealityCheck(
   diagnosis: DiagnosisData,
   observations: ObservationData
-): { gateResult: Gate2Result; sanitizedDiagnosis: DiagnosisData } {
+): { realityCheckResult: RealityCheckResult; sanitizedDiagnosis: DiagnosisData } {
   const rejectedClaims: string[] = [];
   const correctedClaims: string[] = [];
 
-  const isReviewsVerified = observations.reviewCount?.verified && (observations.reviewCount.value || 0) > 0;
+  const isReviewsVerified = observations.reviewCount?.status === ObservationStatus.VERIFIED || observations.reviewCount?.status === ObservationStatus.PLAUSIBLE;
   let whyThis = diagnosis.whyThis;
 
-  // Audit Rule 1: Contradiction Detection between Review Count and Trust Claims
+  // Audit Check: Contradiction Detection between Review Count and Trust Claims
   if (!isReviewsVerified && whyThis.toLowerCase().includes('reviews prove')) {
-    rejectedClaims.push('Claiming "reviews prove trust" when review count is Unknown');
+    rejectedClaims.push('Claiming "reviews prove trust" when review count is UNVERIFIED / MISSING');
     whyThis = 'Customer review volume is currently unverified from the public profile. Intake channel and online booking infrastructure are the primary verifiable constraints.';
     correctedClaims.push('Replaced review trust claim with unverified data warning');
   }
@@ -27,9 +27,12 @@ export function evaluateConsistencyGate(
     whyThis,
   };
 
+  const passed = rejectedClaims.length === 0;
+  console.log(`[Reality Check] Status: ${passed ? 'PASSED' : 'CORRECTED'}`);
+
   return {
-    gateResult: {
-      passed: rejectedClaims.length === 0,
+    realityCheckResult: {
+      passed,
       rejectedClaims,
       correctedClaims,
     },
