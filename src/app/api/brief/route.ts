@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TheBrain } from '@/packages/brain';
-import { StorageEngine } from '@/packages/storage';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,13 +10,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
-    // Execute 5-Stage Deterministic Judgment Pipeline
-    // Stage 1: Observer (Facts) -> Stage 2: Signals -> Stage 3: Diagnosis -> Stage 4: Strategy -> Stage 5: Brief
-    const reasoningContract = await TheBrain.executeJudgmentPipeline(url);
-    await StorageEngine.saveContract(reasoningContract);
-
-    // Project contract into disposable UI view
-    const brief = StorageEngine.projectContractToBrief(reasoningContract);
+    // Execute 7-Stage Judgment Pipeline with Gate 1 & Gate 2 Validation
+    const brief = await TheBrain.executeJudgmentPipeline(url);
 
     return NextResponse.json(brief);
   } catch (error: any) {

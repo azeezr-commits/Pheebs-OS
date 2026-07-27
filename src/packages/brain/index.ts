@@ -1,54 +1,72 @@
-import { initializeContext, observeBusinessFacts, OBSERVER_VERSION } from '../observer';
-import { normalizeEvidence, EVIDENCE_VERSION } from '../evidence';
-import { rankEvidencePriorities, PRIORITIZATION_VERSION } from './prioritization';
-import { executeJudgment, JUDGMENT_VERSION } from './judgmentEngine';
-import { designConversation, CONVERSATION_VERSION } from './conversationEngine';
-import { renderBrief, BRIEF_RENDERER_VERSION } from './briefRenderer';
-import { ReasoningContract, StageVersions } from '../shared/types';
-import { validateReasoningContract } from '../shared/validator';
-
-export * from './prioritization';
-export * from './judgmentEngine';
-export * from './conversationEngine';
-export * from './briefRenderer';
+import { observeBusinessFacts, initializeContext } from '../observer/extractor';
+import { evaluateObservationGate } from '../observer/observationGate';
+import { normalizeEvidence } from '../evidence/translator';
+import { rankEvidencePriorities } from './prioritization';
+import { executeJudgment } from './judgmentEngine';
+import { evaluateConsistencyGate } from './consistencyGate';
+import { designConversation } from './conversationEngine';
+import { renderBrief } from './briefRenderer';
+import { StorageEngine } from '../storage';
+import { PheebsBrief, ReasoningContract } from '../shared/types';
 
 export class TheBrain {
-  /**
-   * Executes the Production 7-Stage Judgment Pipeline:
-   * (D) Context -> (D) Observer -> (D) Evidence Normalization ->
-   * (AI) Prioritization -> (AI) Judgment -> (AI) Conversation ->
-   * (D) Brief Renderer
-   */
-  public static async executeJudgmentPipeline(url: string): Promise<ReasoningContract> {
-    // (D) Stage 1: Observer (Verified facts)
+  public static async executeJudgmentPipeline(url: string): Promise<PheebsBrief> {
+    const startTime = Date.now();
+
+    // -------------------------------------------------------------------------
+    // (D) STAGE 0: Context Initialization
+    // -------------------------------------------------------------------------
+    const context = await initializeContext('General Local Business');
+
+    // -------------------------------------------------------------------------
+    // (D) STAGE 1: Observer (Real Fact Extraction with FieldMetadata)
+    // -------------------------------------------------------------------------
     const observations = await observeBusinessFacts(url);
 
-    // (D) Stage 0: Context (Domain initialization)
-    const context = await initializeContext(observations.category);
+    // 🛑 GATE 1: Observation Validation Gate (Before Reasoning)
+    const gate1Result = evaluateObservationGate(observations);
+    if (!gate1Result.passed) {
+      throw new Error(gate1Result.failureReason || "I couldn't confidently identify the business. Please provide another Google Business Profile.");
+    }
 
-    // (D) Stage 2: Evidence Normalization (Raw primitives, no interpretation)
+    // -------------------------------------------------------------------------
+    // (D) STAGE 2: Evidence Normalization (Verified Primitives Only)
+    // -------------------------------------------------------------------------
     const evidence = await normalizeEvidence(observations);
 
-    // (AI) Stage 3: Prioritization (Applies Industry Knowledge Pack weights)
+    // -------------------------------------------------------------------------
+    // (AI) STAGE 3: Prioritization Engine (Consumes Industry Knowledge Packs)
+    // -------------------------------------------------------------------------
     const priorityRanking = await rankEvidencePriorities(evidence, context);
 
-    // (AI) Stage 4: Judgment Engine (ONE constraint + Computed Confidence + Knowledge Assets)
-    const diagnosis = await executeJudgment(priorityRanking, evidence, context);
+    // -------------------------------------------------------------------------
+    // (AI) STAGE 4: Judgment Engine
+    // -------------------------------------------------------------------------
+    const rawDiagnosis = await executeJudgment(priorityRanking, evidence, context);
 
-    // (AI) Stage 5: Conversation Engine (Consumes Unknowns, outputs structured object)
+    // 🛑 GATE 2: Consistency Gate (Before Speaking)
+    const { gateResult: gate2Result, sanitizedDiagnosis: diagnosis } = evaluateConsistencyGate(rawDiagnosis, observations);
+
+    // -------------------------------------------------------------------------
+    // (AI) STAGE 5: Conversation Engine (Consumes Unknowns for Discovery)
+    // -------------------------------------------------------------------------
     const conversation = await designConversation(diagnosis, observations, context);
 
-    // (D) Stage 6: Brief Renderer (Receives ReasoningContract, renders UI brief & secret trace)
-    const { editorial, goldenRule, trace } = await renderBrief(observations, evidence, priorityRanking, diagnosis, conversation, context);
+    // -------------------------------------------------------------------------
+    // (D) STAGE 6: Brief Renderer (PHEEBS v0.0 UI View)
+    // -------------------------------------------------------------------------
+    const { editorial, goldenRule, trace } = await renderBrief(
+      observations,
+      evidence,
+      priorityRanking,
+      diagnosis,
+      conversation,
+      context
+    );
 
-    const versions: StageVersions = {
-      observer: OBSERVER_VERSION,
-      evidence: EVIDENCE_VERSION,
-      prioritization: PRIORITIZATION_VERSION,
-      judgment: JUDGMENT_VERSION,
-      conversation: CONVERSATION_VERSION,
-      renderer: BRIEF_RENDERER_VERSION,
-    };
+    // Attach Gate Results to Secret Thinking Trace
+    trace.gate1Status = gate1Result;
+    trace.gate2Status = gate2Result;
 
     const contract: ReasoningContract = {
       id: `contract_${Date.now()}`,
@@ -61,14 +79,21 @@ export class TheBrain {
       editorial,
       goldenRule,
       trace,
-      versions,
+      versions: {
+        observer: '1.4',
+        evidence: '1.2',
+        prioritization: '0.4',
+        judgment: '0.5',
+        conversation: '0.2',
+        renderer: '0.2',
+      },
       generatedAt: new Date().toISOString(),
     };
 
-    if (!validateReasoningContract(contract)) {
-      throw new Error('ReasoningContract validation failed: missing required 7-stage pipeline fields');
-    }
+    // Save ReasoningContract and secret ThinkingTrace log in StorageEngine
+    await StorageEngine.saveContract(contract);
 
-    return contract;
+    // Project ReasoningContract into Pheebs v0.0 UI view
+    return StorageEngine.projectContractToBrief(contract);
   }
 }

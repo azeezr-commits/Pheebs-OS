@@ -1,4 +1,4 @@
-import { PheebsBrief, ReasoningContract } from '../shared/types';
+import { PheebsBrief, ReasoningContract, VerificationStatus } from '../shared/types';
 
 export class StorageEngine {
   private static contracts: Map<string, ReasoningContract> = new Map();
@@ -30,26 +30,29 @@ export class StorageEngine {
       reason: "I wouldn't spend today's conversation talking about reviews. You're already winning there.",
     };
 
-    const evidenceFacts: Array<{ label: string; isPositive: boolean; status: 'Verified' | 'Unknown' | 'Unable to Verify' }> = [
+    const isRatingVerified = observations.rating?.verified || false;
+    const isReviewVerified = observations.reviewCount?.verified || false;
+
+    const evidenceFacts: Array<{ label: string; isPositive: boolean; status: VerificationStatus }> = [
       {
-        label: observations.rating ? `⭐ ${observations.rating} rating` : '⭐ Rating unverified',
-        isPositive: (observations.rating || 0) >= 4.0,
-        status: (observations.verifications.rating?.status as any) || 'Unknown',
+        label: isRatingVerified ? `⭐ ${observations.rating!.value} rating` : '⭐ Rating unverified',
+        isPositive: isRatingVerified && (observations.rating!.value >= 4.0),
+        status: isRatingVerified ? 'Verified' : 'Unknown',
       },
       {
-        label: observations.reviewCount !== undefined ? `${observations.reviewCount} reviews` : 'Review count unverified',
-        isPositive: (observations.reviewCount || 0) >= 30,
-        status: (observations.verifications.reviewCount?.status as any) || 'Unknown',
+        label: isReviewVerified ? `${observations.reviewCount!.value} reviews` : 'Review count unverified',
+        isPositive: isReviewVerified && (observations.reviewCount!.value >= 30),
+        status: isReviewVerified ? 'Verified' : 'Unknown',
       },
       {
         label: 'Website exists',
-        isPositive: true,
-        status: (observations.verifications.website?.status as any) || 'Verified',
+        isPositive: observations.website?.verified || false,
+        status: observations.website?.verified ? 'Verified' : 'Unknown',
       },
       {
-        label: observations.hasBookingLink ? 'Visible booking CTA' : 'No visible booking CTA',
-        isPositive: observations.hasBookingLink,
-        status: (observations.verifications.bookingLink?.status as any) || 'Unable to Verify',
+        label: observations.hasBookingLink.value ? 'Visible booking CTA' : 'No visible booking CTA',
+        isPositive: observations.hasBookingLink.value,
+        status: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
       },
       {
         label: 'No online scheduler detected',
@@ -58,19 +61,58 @@ export class StorageEngine {
       },
       {
         label: 'Active Google Profile',
-        isPositive: true,
-        status: (observations.verifications.businessName?.status as any) || 'Verified',
+        isPositive: observations.businessName.verified,
+        status: observations.businessName.verified ? 'Verified' : 'Unknown',
       },
     ];
 
+    const fieldVerifications: Record<string, { value: any; status: VerificationStatus; source: string; confidence: number }> = {
+      businessName: {
+        value: observations.businessName.value,
+        status: observations.businessName.verified ? 'Verified' : 'Unknown',
+        source: observations.businessName.source,
+        confidence: observations.businessName.confidence,
+      },
+      website: {
+        value: observations.website?.value || 'N/A',
+        status: observations.website?.verified ? 'Verified' : 'Unknown',
+        source: observations.website?.source || 'Canonical Link',
+        confidence: observations.website?.confidence || 0,
+      },
+      address: {
+        value: observations.address.value,
+        status: observations.address.verified ? 'Verified' : 'Unknown',
+        source: observations.address.source,
+        confidence: observations.address.confidence,
+      },
+      rating: {
+        value: observations.rating?.value || 'Unverified',
+        status: isRatingVerified ? 'Verified' : 'Unknown',
+        source: observations.rating?.source || 'Google Profile',
+        confidence: observations.rating?.confidence || 0,
+      },
+      reviewCount: {
+        value: observations.reviewCount?.value || 'Unverified',
+        status: isReviewVerified ? 'Verified' : 'Unknown',
+        source: observations.reviewCount?.source || 'Google Profile',
+        confidence: observations.reviewCount?.confidence || 0,
+      },
+      bookingLink: {
+        value: observations.hasBookingLink.value ? 'Present' : 'Missing',
+        status: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
+        source: observations.hasBookingLink.source,
+        confidence: observations.hasBookingLink.confidence,
+      },
+    };
+
     return {
       id: contract.id,
-      businessName: observations.businessName,
-      category: observations.category,
-      address: observations.address,
-      website: observations.website || '',
-      rating: observations.rating,
-      reviewCount: observations.reviewCount,
+      businessName: observations.businessName.value,
+      category: observations.category.value,
+      address: observations.address.value,
+      website: observations.website?.value || '',
+      rating: observations.rating?.value,
+      reviewCount: observations.reviewCount?.value,
       traceId: contract.trace.traceId,
 
       // 1. START HERE
@@ -110,7 +152,7 @@ export class StorageEngine {
       memorableFooter: editorial.memorableFooter || 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
 
       // Developer Audit Data
-      fieldVerifications: observations.verifications,
+      fieldVerifications,
 
       versions,
       generatedAt,

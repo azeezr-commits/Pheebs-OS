@@ -1,6 +1,6 @@
 /**
- * PHEEBS v0.0 — Product Reliability Initiative
- * Domain Models, Evidence Verification, and Reasoning Contract
+ * PHEEBS v0.0 — Product Reliability & Two-Gate Architecture
+ * Domain Models, Field Metadata, Gate 1 & Gate 2 Contracts
  */
 
 export type PrimaryConstraint = 'Visibility' | 'Trust' | 'Conversion' | 'Retention' | 'Operations' | 'Unknown';
@@ -23,29 +23,41 @@ export interface BusinessContext {
   targetPersona: string;
 }
 
-export interface FieldVerification {
-  fieldName: string;
-  value: string | number | boolean | undefined;
-  status: VerificationStatus;
+export interface FieldMetadata<T = any> {
+  value: T;
   source: string;
+  confidence: number; // 0.0 to 1.0
+  verified: boolean;
+  extractedAt: string;
 }
 
 export interface ObservationData {
-  businessName: string;
-  category: string;
-  address: string;
-  website?: string;
-  rating?: number;
-  reviewCount?: number;
-  phone?: string;
-  hasBookingLink: boolean;
-  hoursListed: boolean;
-  photosCount: number;
-  servicesList: string[];
-  locationType: 'Single Location' | 'Multi Location' | 'Virtual / Mobile';
-  socialLinks: string[];
+  businessName: FieldMetadata<string>;
+  category: FieldMetadata<string>;
+  address: FieldMetadata<string>;
+  website?: FieldMetadata<string>;
+  rating?: FieldMetadata<number>;
+  reviewCount?: FieldMetadata<number>;
+  phone?: FieldMetadata<string>;
+  hasBookingLink: FieldMetadata<boolean>;
+  hoursListed: FieldMetadata<boolean>;
+  photosCount: FieldMetadata<number>;
+  servicesList: FieldMetadata<string[]>;
+  locationType: FieldMetadata<'Single Location' | 'Multi Location' | 'Virtual / Mobile'>;
+  socialLinks: FieldMetadata<string[]>;
   observedAt: string;
-  verifications: Record<string, FieldVerification>;
+}
+
+export interface Gate1Result {
+  passed: boolean;
+  failureReason?: string;
+  rejectedFields: string[];
+}
+
+export interface Gate2Result {
+  passed: boolean;
+  rejectedClaims: string[];
+  correctedClaims: string[];
 }
 
 export interface NormalizedEvidence {
@@ -54,6 +66,7 @@ export interface NormalizedEvidence {
   value: string | number | boolean;
   source: string;
   verificationStatus: VerificationStatus;
+  confidence: number;
   isPositive?: boolean;
   label?: string;
 }
@@ -67,10 +80,10 @@ export interface PriorityItem {
   weightScore: number;
 }
 
-export interface KnownUnknownAssumptions {
+export interface KnownUnknownHypotheses {
   known: string[];
   unknown: string[];
-  assumptions: string[];
+  hypotheses: string[]; // Replaces assumptions before judgment!
 }
 
 export interface ComputedConfidence {
@@ -88,7 +101,7 @@ export interface DiagnosisData {
   whyNot: Array<{ topic: string; reason: string }>;
   falsificationEvidence: string[];
   computedConfidence: ComputedConfidence;
-  knowledgeAssets: KnownUnknownAssumptions;
+  knowledgeAssets: KnownUnknownHypotheses;
   judgmentVersion: string;
 }
 
@@ -123,6 +136,8 @@ export interface ThinkingTrace {
   traceId: string;
   timestamp: string;
   evidenceCoveragePercent: number;
+  gate1Status: Gate1Result;
+  gate2Status: Gate2Result;
   stages: {
     stage0_context: BusinessContext;
     stage1_observations: ObservationData;
@@ -199,13 +214,8 @@ export interface PheebsBrief {
   memorableFooter: string;
 
   // Developer Audit Data
-  fieldVerifications: Record<string, FieldVerification>;
+  fieldVerifications: Record<string, { value: any; status: VerificationStatus; source: string; confidence: number }>;
 
   versions: StageVersions;
   generatedAt: string;
-}
-
-export interface ThinkingSequenceStep {
-  label: string;
-  status: 'pending' | 'active' | 'done';
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FieldVerification, PheebsBrief } from '@/packages/shared/types';
+import { PheebsBrief, VerificationStatus } from '@/packages/shared/types';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DeveloperModeDrawerProps {
@@ -13,7 +13,7 @@ interface DeveloperModeDrawerProps {
 export const DeveloperModeDrawer: React.FC<DeveloperModeDrawerProps> = ({ brief, isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  const verifications: Record<string, FieldVerification> = brief.fieldVerifications || {};
+  const verifications: Record<string, { value: any; status: VerificationStatus; source: string; confidence: number }> = brief.fieldVerifications || {};
 
   return (
     <AnimatePresence>
@@ -94,7 +94,7 @@ export const DeveloperModeDrawer: React.FC<DeveloperModeDrawerProps> = ({ brief,
             {Object.entries(verifications).map(([key, item]) => (
               <div key={key} style={{ background: '#1E293B', padding: '10px 12px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <span style={{ color: '#E2E8F0', fontWeight: 600, display: 'block' }}>{item.fieldName}</span>
+                  <span style={{ color: '#E2E8F0', fontWeight: 600, display: 'block', textTransform: 'capitalize' }}>{key}</span>
                   <span style={{ color: '#64748B', fontSize: '10px' }}>{item.source}</span>
                 </div>
                 <span style={{

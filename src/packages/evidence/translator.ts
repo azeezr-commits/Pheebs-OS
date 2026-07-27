@@ -1,10 +1,10 @@
 import { NormalizedEvidence, ObservationData } from '../shared/types';
 
-export const EVIDENCE_VERSION = '1.1';
+export const EVIDENCE_VERSION = '1.2';
 
 /**
  * Stage 2 — Evidence Normalizer (Deterministic)
- * Normalizes verified observations into standardized primitives.
+ * Converts ONLY verified observation fields into normalized primitives.
  */
 export async function normalizeEvidence(observations: ObservationData): Promise<NormalizedEvidence[]> {
   const evidence: NormalizedEvidence[] = [];
@@ -13,50 +13,45 @@ export async function normalizeEvidence(observations: ObservationData): Promise<
   evidence.push({
     id: 'ev_booking_link',
     type: 'booking_link',
-    value: observations.hasBookingLink ? 'present' : 'missing',
-    source: 'Website & GBP Audit',
-    verificationStatus: observations.verifications.bookingLink?.status || 'Unable to Verify',
+    value: observations.hasBookingLink.value ? 'present' : 'missing',
+    source: observations.hasBookingLink.source,
+    verificationStatus: observations.hasBookingLink.verified ? 'Verified' : 'Unable to Verify',
+    confidence: observations.hasBookingLink.confidence,
   });
 
-  // 2. Review Volume Number
-  if (observations.reviewCount !== undefined) {
+  // 2. Review Count
+  if (observations.reviewCount && observations.reviewCount.verified) {
     evidence.push({
       id: 'ev_review_count',
       type: 'review_count',
-      value: observations.reviewCount,
-      source: 'Google Business Profile',
-      verificationStatus: observations.verifications.reviewCount?.status || 'Verified',
+      value: observations.reviewCount.value,
+      source: observations.reviewCount.source,
+      verificationStatus: 'Verified',
+      confidence: observations.reviewCount.confidence,
     });
   }
 
-  // 3. Average Star Rating
-  if (observations.rating !== undefined) {
+  // 3. Rating
+  if (observations.rating && observations.rating.verified) {
     evidence.push({
       id: 'ev_rating',
       type: 'rating',
-      value: observations.rating,
-      source: 'Google Business Profile',
-      verificationStatus: observations.verifications.rating?.status || 'Verified',
+      value: observations.rating.value,
+      source: observations.rating.source,
+      verificationStatus: 'Verified',
+      confidence: observations.rating.confidence,
     });
   }
 
-  // 4. Media Footprint Count
-  evidence.push({
-    id: 'ev_photos',
-    type: 'photos_count',
-    value: observations.photosCount,
-    source: 'GBP Metadata',
-    verificationStatus: 'Verified',
-  });
-
-  // 5. Phone Verification
-  if (observations.phone) {
+  // 4. Photos Count
+  if (observations.photosCount && observations.photosCount.verified) {
     evidence.push({
-      id: 'ev_phone',
-      type: 'phone',
-      value: observations.phone,
-      source: 'Google Business Profile',
+      id: 'ev_photos',
+      type: 'photos_count',
+      value: observations.photosCount.value,
+      source: observations.photosCount.source,
       verificationStatus: 'Verified',
+      confidence: observations.photosCount.confidence,
     });
   }
 

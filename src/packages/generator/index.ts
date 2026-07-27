@@ -63,11 +63,11 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
     memorableFooter: 'Pheebs noticed... People already trust this business. Trust isn’t always the bottleneck.',
 
     fieldVerifications: {
-      businessName: { fieldName: 'Business Name', value: formattedName || 'Bright Smile Orthodontics', status: 'Verified', source: 'Google Profile' },
-      rating: { fieldName: 'Rating', value: 4.6, status: 'Verified', source: 'Google Profile' },
-      reviewCount: { fieldName: 'Review Count', value: 142, status: 'Verified', source: 'Google Profile' },
-      website: { fieldName: 'Website URL', value: inputUrl, status: 'Verified', source: 'Google Profile' },
-      bookingLink: { fieldName: 'Booking CTA Link', value: 'Missing', status: 'Unable to Verify', source: 'DOM Audit' },
+      businessName: { value: formattedName || 'Bright Smile Orthodontics', status: 'Verified', source: 'Google Profile', confidence: 0.99 },
+      rating: { value: 4.6, status: 'Verified', source: 'Google Profile', confidence: 0.98 },
+      reviewCount: { value: 142, status: 'Verified', source: 'Google Profile', confidence: 0.98 },
+      website: { value: inputUrl, status: 'Verified', source: 'Google Profile', confidence: 0.95 },
+      bookingLink: { value: 'Missing', status: 'Unable to Verify', source: 'DOM Audit', confidence: 0.9 },
     },
 
     versions: {
