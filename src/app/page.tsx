@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ThinkingSequence, SequenceStep } from '@/components/ThinkingSequence';
 import { BriefDocument } from '@/components/BriefDocument';
-import { BriefByPheebs } from '@/packages/shared/types';
+import { PheebsBrief } from '@/packages/shared/types';
 
 const PRESET_ACCOUNTS = [
   { name: 'Bright Smile Orthodontics', url: 'https://maps.google.com/?q=Bright+Smile+Orthodontics+San+Francisco' },
@@ -15,7 +15,7 @@ export default function BriefByPheebsPage() {
   const [inputUrl, setInputUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [thinkingSteps, setThinkingSteps] = useState<SequenceStep[]>([]);
-  const [brief, setBrief] = useState<BriefByPheebs | null>(null);
+  const [brief, setBrief] = useState<PheebsBrief | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleGenerate = async (targetUrl?: string) => {
@@ -58,7 +58,7 @@ export default function BriefByPheebsPage() {
       setThinkingSteps(prev => prev.map((s, i) => i === 2 ? { ...s, status: 'done' } : i === 3 ? { ...s, status: 'active' } : s));
       await new Promise(r => setTimeout(r, 400));
 
-      const data: BriefByPheebs = await res.json();
+      const data: PheebsBrief = await res.json();
 
       setThinkingSteps(prev => prev.map(s => ({ ...s, status: 'done' })));
       await new Promise(r => setTimeout(r, 300));

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BriefByPheebs } from '@/packages/shared/types';
+import { PheebsBrief } from '@/packages/shared/types';
 import { motion } from 'framer-motion';
 
 interface BriefDocumentProps {
-  brief: BriefByPheebs;
+  brief: PheebsBrief;
   onReset: () => void;
 }
 
@@ -49,6 +49,28 @@ export const BriefDocument: React.FC<BriefDocumentProps> = ({ brief, onReset }) 
           <p style={{ fontSize: '13px', color: '#666666', margin: 0, marginTop: '2px' }}>
             {brief.category} • {brief.address} • ⭐ {brief.rating} ({brief.reviewCount} reviews)
           </p>
+          {brief.versions && (
+            <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Observer v{brief.versions.observer}
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Evidence v{brief.versions.evidence}
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Prioritization v{brief.versions.prioritization}
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Judgment v{brief.versions.judgment}
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Conversation v{brief.versions.conversation}
+              </span>
+              <span style={{ fontSize: '10px', fontWeight: 600, background: '#F1EFEA', padding: '2px 8px', borderRadius: '4px', border: '1px solid #E8E5DF', color: '#666' }}>
+                Renderer v{brief.versions.renderer}
+              </span>
+            </div>
+          )}
         </div>
         <button
           onClick={onReset}
@@ -77,17 +99,30 @@ export const BriefDocument: React.FC<BriefDocumentProps> = ({ brief, onReset }) 
         
         {/* START HERE Callout Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            🎯 START HERE
-          </span>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: '#0F172A', background: '#F1EFEA', padding: '3px 10px', borderRadius: '12px', border: '1px solid #E8E5DF' }}>
-            Confidence: {brief.startHere.confidence}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              🎯 START HERE
+            </span>
+            {brief.startHere.primaryConstraint && (
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF', background: brief.startHere.primaryConstraint === 'Unknown' ? '#64748B' : '#0F172A', padding: '2px 8px', borderRadius: '4px' }}>
+                Constraint: {brief.startHere.primaryConstraint}
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: brief.startHere.confidence === 'Low' ? '#C2410C' : '#0F172A', background: '#F1EFEA', padding: '3px 10px', borderRadius: '12px', border: '1px solid #E8E5DF' }}>
+            Confidence: {brief.startHere.confidence} {brief.startHere.confidenceScore !== undefined ? `(${Math.round(brief.startHere.confidenceScore * 100)}%)` : ''}
           </span>
         </div>
 
         <h2 style={{ fontSize: '32px', fontFamily: 'Instrument Serif, serif', fontWeight: 400, color: '#161616', margin: 0, lineHeight: 1.2 }}>
           {brief.startHere.topic}
         </h2>
+
+        {brief.startHere.primaryConstraint === 'Unknown' && (
+          <div style={{ marginTop: '14px', background: '#FFF7ED', border: '1px solid #FFEDD5', padding: '12px 16px', borderRadius: '6px', fontSize: '13.5px', color: '#9A3412' }}>
+            ⚠️ <strong>Insufficient public evidence detected.</strong> Rather than guessing a recommendation, validate intake flow during discovery.
+          </div>
+        )}
 
         <p style={{ fontSize: '15px', color: '#444444', marginTop: '14px', lineHeight: 1.6, maxWidth: '720px' }}>
           {brief.startHere.why}
@@ -144,20 +179,52 @@ export const BriefDocument: React.FC<BriefDocumentProps> = ({ brief, onReset }) 
         </p>
       </div>
 
-      {/* 2. Observable Evidence (Checkmarks) */}
-      <div style={{ marginBottom: '40px' }}>
-        <h3 style={{ fontSize: '20px', fontFamily: 'Instrument Serif, serif', color: '#161616', margin: 0, marginBottom: '14px' }}>
-          Evidence
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          {brief.evidence.map((item, idx) => (
-            <div key={idx} style={{ background: '#FFFFFF', border: '1px solid #E8E5DF', padding: '14px 18px', borderRadius: '8px', fontSize: '13.5px', color: '#161616', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#16A34A', fontWeight: 700 }}>✓</span>
-              <span>{item}</span>
-            </div>
-          ))}
+      {/* 2. Ranked Priorities (The Heart of Pheebs & The Moat) */}
+      {brief.priorityRanking && brief.priorityRanking.length > 0 && (
+        <div style={{ marginBottom: '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <h3 style={{ fontSize: '20px', fontFamily: 'Instrument Serif, serif', color: '#161616', margin: 0 }}>
+              Evidence Priority Ranking
+            </h3>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#0F172A', background: '#F1EFEA', padding: '2px 10px', borderRadius: '12px', border: '1px solid #E8E5DF' }}>
+              Ranked by Judgment Engine
+            </span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {brief.priorityRanking.map((p, idx) => (
+              <div key={idx} style={{ background: '#FFFFFF', border: '1px solid #E8E5DF', borderLeft: p.rank === 1 ? '4px solid #0F172A' : '1px solid #E8E5DF', padding: '16px 20px', borderRadius: '8px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: p.rank === 1 ? '#FFFFFF' : '#666666', background: p.rank === 1 ? '#0F172A' : '#F1EFEA', padding: '2px 8px', borderRadius: '12px' }}>
+                  #{p.rank}
+                </span>
+                <div>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#161616', display: 'block', marginBottom: '2px' }}>
+                    {p.label}
+                  </span>
+                  <span style={{ fontSize: '13px', color: '#555555', lineHeight: 1.4, display: 'block' }}>
+                    {p.importanceReason}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 3. Falsification Evidence ("What evidence could prove us wrong?") */}
+      {brief.falsificationEvidence && brief.falsificationEvidence.length > 0 && (
+        <div style={{ marginBottom: '40px', background: '#FAF5FF', border: '1px solid #F3E8FF', padding: '20px 24px', borderRadius: '10px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#7E22CE', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+            🔍 What evidence could prove us wrong?
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {brief.falsificationEvidence.map((item, idx) => (
+              <span key={idx} style={{ fontSize: '13.5px', color: '#581C87', lineHeight: 1.5 }}>
+                • {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 3. Conversation Strategy Timeline */}
       <div style={{ marginBottom: '40px' }}>
