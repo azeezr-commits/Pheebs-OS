@@ -1,7 +1,7 @@
 import { BusinessIdentity, ObservationData, ObservationStatus, Provenance } from '../shared/types';
 import { OBSERVATION_RULES } from './observationRules';
 
-export const REALITY_ADAPTER_VERSION = '0.3';
+export const REALITY_ADAPTER_VERSION = '0.4';
 
 interface ExtractedRawFacts {
   businessName?: string;
@@ -23,7 +23,7 @@ interface ExtractedRawFacts {
 /**
  * Reality Adapter v0 — True Web Eyes
  * A pure 0-LLM, 0-mock HTTP fetcher & Schema.org JSON-LD / HTML DOM parser.
- * Expands short Google Maps URLs (maps.app.goo.gl) via 302 Location header inspection.
+ * Expands short Google Maps URLs (maps.app.goo.gl) via lightweight bot HTTP 302 Location header resolution.
  */
 export class RealityAdapter {
   public static async fetchAndObserve(
@@ -39,13 +39,12 @@ export class RealityAdapter {
     let finalUrl = cleanUrl;
     let redirectLocation = '';
 
-    // 1. Resolve HTTP 301/302 Redirect Location Header (Crucial for maps.app.goo.gl short URLs)
+    // 1. Resolve HTTP 301/302 Redirect Location Header (Lightweight HTTP client header)
     try {
       const initialRes = await fetch(cleanUrl, {
         method: 'GET',
         headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'User-Agent': 'curl/7.88.1',
         },
         redirect: 'manual',
       });
@@ -59,7 +58,7 @@ export class RealityAdapter {
 
     // 2. Fetch live web page HTML
     try {
-      const response = await fetch(cleanUrl, {
+      const response = await fetch(redirectLocation || cleanUrl, {
         headers: {
           'User-Agent':
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -133,6 +132,17 @@ export class RealityAdapter {
       }
     }
 
+    // HTML Body Fallback Search for Google Maps Place URL regex
+    if (!nameVal || nameVal.toLowerCase() === 'maps' || nameVal.toLowerCase() === 'google maps') {
+      const htmlPlaceMatch = rawHtml.match(/https?:\/\/[^"'\s]*google\.com\/maps\/place\/([^"'\s?\/]+)/i);
+      if (htmlPlaceMatch && htmlPlaceMatch[1]) {
+        const rawName = htmlPlaceMatch[1].split('@')[0].replace(/\+/g, ' ');
+        nameVal = decodeURIComponent(rawName);
+        nameSource = 'google-maps-html-body-regex';
+        recoveryAttempts.push(`Extracted place identity "${nameVal}" from HTML body regex.`);
+      }
+    }
+
     // Clean up residual Google Maps title strings
     if (nameVal) {
       nameVal = nameVal.replace(/ - Google Maps$/, '').replace(/^Google Maps - /, '').trim();
@@ -187,7 +197,7 @@ export class RealityAdapter {
         }
       }
 
-      if (extractedBy === 'url-query-parameter' || extractedBy === 'google-maps-redirect-location' || extractedBy === 'google-maps-search-path') {
+      if (extractedBy === 'url-query-parameter' || extractedBy === 'google-maps-redirect-location' || extractedBy === 'google-maps-search-path' || extractedBy === 'google-maps-html-body-regex') {
         status = ObservationStatus.PLAUSIBLE;
         confidence = 0.85;
       }
