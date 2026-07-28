@@ -1,17 +1,18 @@
 import { NormalizedEvidence, ObservationData, ObservationStatus } from '../shared/types';
 
-export const EVIDENCE_VERSION = '2.0';
+export const EVIDENCE_VERSION = '2.1';
 
 /**
  * Stage 2 — Evidence Builder (Decouples Raw Observations)
- * Transforms verified/plausible observations into abstract high-level evidence primitives.
- * The Judgment Engine never sees raw HTML or Schema.org nodes!
+ * Attaches executionId to every evidence primitive for isolation checking.
  */
 export async function buildEvidence(observations: ObservationData): Promise<NormalizedEvidence[]> {
+  const { executionId } = observations;
   const evidence: NormalizedEvidence[] = [];
 
   // 1. Intake Channel & Booking CTA
   evidence.push({
+    executionId,
     id: 'ev_booking_link',
     type: 'booking_link',
     value: observations.hasBookingLink.value ? 'present' : 'missing',
@@ -29,6 +30,7 @@ export async function buildEvidence(observations: ObservationData): Promise<Norm
     const strength = revCount >= 100 ? 'High' : revCount >= 30 ? 'Medium' : 'Low';
 
     evidence.push({
+      executionId,
       id: 'ev_review_count',
       type: 'review_count',
       value: revCount,
@@ -45,6 +47,7 @@ export async function buildEvidence(observations: ObservationData): Promise<Norm
   if (observations.rating && observations.rating.status !== ObservationStatus.MISSING && observations.rating.status !== ObservationStatus.INVALID) {
     const ratingVal = observations.rating.value || 0;
     evidence.push({
+      executionId,
       id: 'ev_rating',
       type: 'rating',
       value: ratingVal,

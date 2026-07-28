@@ -1,6 +1,6 @@
 /**
- * PHEEBS Permanent Production Architecture
- * 5-State Observation Quality, Field Provenance & Reasoning Contract
+ * PHEEBS P0 — Execution Integrity Framework
+ * Domain Models, Business Identity, Execution Isolation, and Reasoning Contract
  */
 
 export enum ObservationStatus {
@@ -14,6 +14,21 @@ export enum ObservationStatus {
 export type PrimaryConstraint = 'Visibility' | 'Trust' | 'Conversion' | 'Retention' | 'Operations' | 'Unknown';
 export type ConfidenceLevel = 'High' | 'Medium' | 'Low';
 
+export class PipelineIntegrityError extends Error {
+  constructor(message: string) {
+    super(`[PipelineIntegrityError] ${message}`);
+    this.name = 'PipelineIntegrityError';
+  }
+}
+
+export interface BusinessIdentity {
+  executionId: string;
+  name: string;
+  canonicalUrl: string;
+  domain: string;
+  observedAt: string;
+}
+
 export interface StageVersions {
   observer: string;
   evidence: string;
@@ -24,6 +39,7 @@ export interface StageVersions {
 }
 
 export interface BusinessContext {
+  executionId: string;
   industry: string;
   companySize: 'SMB' | 'Mid-Market' | 'Enterprise';
   salesMotion: 'Inbound' | 'Outbound' | 'Hybrid';
@@ -31,16 +47,19 @@ export interface BusinessContext {
 }
 
 export interface Provenance<T = any> {
+  executionId: string;
   value: T;
   source: string;
   extractedBy: string;
   observedAt: string;
   normalizedBy: string;
-  confidence: number; // 0.0 to 1.0
+  confidence: number;
   status: ObservationStatus;
 }
 
 export interface ObservationData {
+  executionId: string;
+  businessIdentity: BusinessIdentity;
   businessName: Provenance<string>;
   category: Provenance<string>;
   address: Provenance<string>;
@@ -67,7 +86,11 @@ export interface FieldObservationReport {
 }
 
 export interface DeveloperObservationReport {
-  overallConfidencePercent: number; // Weighted by field dominance
+  executionId: string;
+  businessName: string;
+  canonicalUrl: string;
+  isolationStatus: 'PASSED' | 'FAILED';
+  overallConfidencePercent: number;
   criticalFieldsStatus: Record<string, ObservationStatus>;
   fields: Record<string, FieldObservationReport>;
   recoveryAttempts: string[];
@@ -79,7 +102,14 @@ export interface RealityCheckResult {
   correctedClaims: string[];
 }
 
+export interface GateResult {
+  passed: boolean;
+  gateName: string;
+  details: string;
+}
+
 export interface NormalizedEvidence {
+  executionId: string;
   id: string;
   type: string;
   value: string | number | boolean;
@@ -116,6 +146,7 @@ export interface ComputedConfidence {
 }
 
 export interface DiagnosisData {
+  executionId: string;
   primaryConstraint: PrimaryConstraint;
   whyThis: string;
   whyNot: Array<{ topic: string; reason: string }>;
@@ -126,6 +157,7 @@ export interface DiagnosisData {
 }
 
 export interface ConversationObject {
+  executionId: string;
   openingAngle: string;
   firstQuestion: string;
   discoveryQuestions: string[];
@@ -154,9 +186,12 @@ export interface GoldenRuleAnswers {
 
 export interface ThinkingTrace {
   traceId: string;
+  executionId: string;
   timestamp: string;
   evidenceCoveragePercent: number;
   realityCheckStatus: RealityCheckResult;
+  identityGateStatus: GateResult;
+  isolationGateStatus: GateResult;
   stages: {
     stage0_context: BusinessContext;
     stage1_observations: ObservationData;
@@ -169,6 +204,7 @@ export interface ThinkingTrace {
 
 export interface ReasoningContract {
   id: string;
+  executionId: string;
   context: BusinessContext;
   observations: ObservationData;
   evidence: NormalizedEvidence[];
@@ -185,6 +221,7 @@ export interface ReasoningContract {
 // PHEEBS v0.0 UI View
 export interface PheebsBrief {
   id: string;
+  executionId: string;
   businessName: string;
   category: string;
   address: string;

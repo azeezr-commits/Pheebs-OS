@@ -27,7 +27,7 @@ export class StorageEngine {
     contract: ReasoningContract,
     customReport?: DeveloperObservationReport
   ): PheebsBrief {
-    const { observations, diagnosis, conversation, editorial, versions, generatedAt } = contract;
+    const { observations, diagnosis, conversation, editorial, versions, generatedAt, executionId } = contract;
 
     const avoidTopic = conversation.avoidTopics[0] || {
       topic: 'Reviews & Reputation',
@@ -70,10 +70,11 @@ export class StorageEngine {
       },
     ];
 
-    const observationReport = customReport || buildObservationReport(observations);
+    const observationReport = customReport || buildObservationReport(executionId, observations);
 
     return {
       id: contract.id,
+      executionId,
       businessName: observations.businessName.value,
       category: observations.category.value,
       address: observations.address.value,

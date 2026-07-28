@@ -6,6 +6,7 @@ import { BriefDocument } from '@/components/BriefDocument';
 import { PheebsBrief } from '@/packages/shared/types';
 
 const PRESET_ACCOUNTS = [
+  { name: "Claudia's Body & Skin Care Center", url: "https://maps.google.com/?q=Claudia's+Body+%26+Skin+Care+Center" },
   { name: 'Brooklyn Brows NYC', url: 'https://maps.google.com/?q=Brooklyn+Brows+NYC' },
   { name: 'Bright Smile Orthodontics', url: 'https://maps.google.com/?q=Bright+Smile+Orthodontics+San+Francisco' },
   { name: 'Evergreen Dental Care', url: 'https://maps.google.com/?q=Evergreen+Dental+Care+Seattle' },

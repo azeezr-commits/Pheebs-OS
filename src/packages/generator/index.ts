@@ -12,6 +12,10 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
   const formattedName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
 
   const report = {
+    executionId: `exec_${Date.now()}_static`,
+    businessName: formattedName || 'Bright Smile Orthodontics',
+    canonicalUrl: inputUrl,
+    isolationStatus: 'PASSED' as const,
     overallConfidencePercent: 94,
     criticalFieldsStatus: {
       businessName: ObservationStatus.VERIFIED,
@@ -33,6 +37,7 @@ export async function generateBrief(inputUrl: string): Promise<PheebsBrief> {
 
   return {
     id,
+    executionId: `exec_${Date.now()}_static`,
     businessName: formattedName || 'Bright Smile Orthodontics',
     category: 'Healthcare & Wellness Practice',
     address: '450 Sutter St, San Francisco, CA',

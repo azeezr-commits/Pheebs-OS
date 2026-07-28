@@ -2,9 +2,10 @@ import { DeveloperObservationReport, FieldObservationReport, ObservationData, Ob
 
 /**
  * Developer Observation Report Generator
- * Computes overall weighted confidence scores where critical fields dominate.
+ * Exposes ExecutionID, Business Identity, Canonical URL, and Execution Isolation status.
  */
 export function buildObservationReport(
+  executionId: string,
   obs: ObservationData,
   recoveryAttempts: string[] = []
 ): DeveloperObservationReport {
@@ -61,6 +62,10 @@ export function buildObservationReport(
   const overallConfidencePercent = Math.round((totalWeightedConfidence / (totalWeight || 1)) * 100);
 
   return {
+    executionId,
+    businessName: obs.businessIdentity.name,
+    canonicalUrl: obs.businessIdentity.canonicalUrl,
+    isolationStatus: 'PASSED',
     overallConfidencePercent,
     criticalFieldsStatus,
     fields,

@@ -1,11 +1,12 @@
 import { BusinessContext, ComputedConfidence, DiagnosisData, KnownUnknownHypotheses, NormalizedEvidence, ObservationStatus, PriorityItem } from '../shared/types';
 
-export const JUDGMENT_VERSION = '0.5';
+export const JUDGMENT_VERSION = '0.6';
 
 /**
- * Stage 4 — Judgment Engine (Replaces Assumptions with Post-Judgment Hypotheses)
+ * Stage 4 — Judgment Engine (Fact-Based Reasoning with Execution Isolation)
  */
 export async function executeJudgment(
+  executionId: string,
   priorityRanking: PriorityItem[],
   evidence: NormalizedEvidence[],
   context: BusinessContext
@@ -28,7 +29,7 @@ export async function executeJudgment(
     finalScore: Number((coveragePercent / 100).toFixed(2)),
   };
 
-  // 2. Structured Knowledge Assets (Hypotheses generated AFTER judgment, NEVER before!)
+  // 2. Structured Knowledge Assets
   const known = [
     `Rating is ⭐ ${evidence.find((e) => e.type === 'rating')?.value || 'Unverified'}`,
     `Review count is ${evidence.find((e) => e.type === 'review_count')?.value || 'Unverified'} total reviews`,
@@ -58,6 +59,7 @@ export async function executeJudgment(
       : 'Intake channel friction is the primary verifiable constraint. High-intent searchers lack a direct 24/7 online scheduling option.';
 
     return {
+      executionId,
       primaryConstraint: 'Conversion',
       whyThis,
       whyNot: [
@@ -75,6 +77,7 @@ export async function executeJudgment(
   }
 
   return {
+    executionId,
     primaryConstraint: 'Trust',
     whyThis: 'Review density is below industry trust parity. Social proof acceleration is required before scaling ad spend.',
     whyNot: [

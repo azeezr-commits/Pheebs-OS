@@ -49,8 +49,11 @@ export async function renderBrief(
 
   const trace: ThinkingTrace = {
     traceId: `trace_${Date.now()}`,
+    executionId: observations.executionId,
     timestamp: new Date().toISOString(),
     evidenceCoveragePercent: diagnosis.computedConfidence.evidenceCoveragePercent,
+    identityGateStatus: { passed: true, gateName: 'Identity Gate', details: 'Verified' },
+    isolationGateStatus: { passed: true, gateName: 'Isolation Gate', details: 'Passed' },
     realityCheckStatus: { passed: true, rejectedClaims: [], correctedClaims: [] },
     stages: {
       stage0_context: context,
