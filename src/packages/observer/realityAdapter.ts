@@ -1,7 +1,7 @@
 import { BusinessIdentity, ObservationData, ObservationStatus, Provenance } from '../shared/types';
 import { OBSERVATION_RULES } from './observationRules';
 
-export const REALITY_ADAPTER_VERSION = '0.1';
+export const REALITY_ADAPTER_VERSION = '0.2';
 
 interface ExtractedRawFacts {
   businessName?: string;
@@ -23,7 +23,7 @@ interface ExtractedRawFacts {
 /**
  * Reality Adapter v0 — True Web Eyes
  * A pure 0-LLM, 0-mock HTTP fetcher & Schema.org JSON-LD / HTML DOM parser.
- * NO ESTIMATION. NO FABRICATION. If unobserved, returns MISSING.
+ * Expands short Google Maps URLs (maps.app.goo.gl) to resolve canonical place identity.
  */
 export class RealityAdapter {
   public static async fetchAndObserve(
@@ -36,8 +36,9 @@ export class RealityAdapter {
 
     let rawHtml = '';
     let fetchedOk = false;
+    let finalUrl = cleanUrl;
 
-    // 1. Fetch live web page HTML
+    // 1. Fetch live web page HTML and resolve redirects
     try {
       const response = await fetch(cleanUrl, {
         headers: {
@@ -48,6 +49,8 @@ export class RealityAdapter {
         },
         redirect: 'follow',
       });
+
+      finalUrl = response.url || cleanUrl;
 
       if (response.ok) {
         rawHtml = await response.text();
@@ -62,34 +65,68 @@ export class RealityAdapter {
     // 2. Parse Raw Facts strictly from HTML & Schema.org JSON-LD
     const rawFacts = this.parseHtmlAndJsonLd(rawHtml, cleanUrl, fetchedOk);
 
-    // 3. Fallback URL Query Recovery if name is completely unobserved from HTML
+    // 3. Google Maps Short URL & Expanded URL Place Identity Resolution
     let nameVal = rawFacts.businessName;
     let nameSource = rawFacts.nameSource;
 
-    if (!nameVal || nameVal.trim() === '' || nameVal.toLowerCase() === 'maps') {
-      try {
-        const urlObj = new URL(cleanUrl);
-        const qParam = urlObj.searchParams.get('q');
-        if (qParam) {
-          nameVal = decodeURIComponent(qParam).replace(/\+/g, ' ');
-          nameSource = 'url-query-parameter';
-          recoveryAttempts.push(`Recovered business identity "${nameVal}" from URL query parameter.`);
-        } else {
-          const hostParts = urlObj.hostname.replace('www.', '').split('.');
-          nameVal = hostParts[0].charAt(0).toUpperCase() + hostParts[0].slice(1);
-          nameSource = 'hostname-parsing';
+    const urlsToAudit = [finalUrl, cleanUrl];
+    for (const u of urlsToAudit) {
+      if (!nameVal || nameVal.trim() === '' || nameVal.toLowerCase() === 'maps' || nameVal.toLowerCase() === 'google maps') {
+        try {
+          const urlObj = new URL(u);
+          
+          // Case A: /maps/place/Business+Name/
+          if (urlObj.pathname.includes('/maps/place/')) {
+            const placeSegment = urlObj.pathname.split('/maps/place/')[1];
+            if (placeSegment) {
+              const rawName = placeSegment.split('/')[0].replace(/\+/g, ' ');
+              nameVal = decodeURIComponent(rawName);
+              nameSource = 'google-maps-place-path';
+              recoveryAttempts.push(`Extracted place identity "${nameVal}" from Google Maps place URL.`);
+            }
+          }
+          
+          // Case B: ?q=Business+Name
+          if (!nameVal || nameVal.toLowerCase() === 'maps') {
+            const qParam = urlObj.searchParams.get('q');
+            if (qParam) {
+              nameVal = decodeURIComponent(qParam).replace(/\+/g, ' ');
+              nameSource = 'url-query-parameter';
+              recoveryAttempts.push(`Extracted identity "${nameVal}" from URL query parameter.`);
+            }
+          }
+
+          // Case C: /maps/search/Business+Name/
+          if (!nameVal || nameVal.toLowerCase() === 'maps') {
+            if (urlObj.pathname.includes('/maps/search/')) {
+              const searchSegment = urlObj.pathname.split('/maps/search/')[1];
+              if (searchSegment) {
+                const rawName = searchSegment.split('/')[0].replace(/\+/g, ' ');
+                nameVal = decodeURIComponent(rawName);
+                nameSource = 'google-maps-search-path';
+              }
+            }
+          }
+        } catch (e) {
+          // Skip URL parse error
         }
-      } catch (e) {
-        nameVal = 'Target Business';
-        nameSource = 'unobserved-fallback';
       }
+    }
+
+    // Clean up residual Google Maps title strings
+    if (nameVal) {
+      nameVal = nameVal.replace(/ - Google Maps$/, '').replace(/^Google Maps - /, '').trim();
+    }
+
+    if (!nameVal || nameVal.toLowerCase() === 'maps' || nameVal.toLowerCase() === 'google maps') {
+      nameVal = 'Maps'; // Triggers IdentityGate safely with clear message
     }
 
     const businessIdentity: BusinessIdentity = {
       executionId,
       name: nameVal,
-      canonicalUrl: rawFacts.website || cleanUrl,
-      domain: cleanUrl.replace(/https?:\/\//, '').split('/')[0],
+      canonicalUrl: rawFacts.website || finalUrl,
+      domain: finalUrl.replace(/https?:\/\//, '').split('/')[0],
       observedAt: now,
     };
 
@@ -130,7 +167,7 @@ export class RealityAdapter {
         }
       }
 
-      if (extractedBy === 'url-query-parameter' || extractedBy === 'hostname-parsing') {
+      if (extractedBy === 'url-query-parameter' || extractedBy === 'google-maps-place-path' || extractedBy === 'google-maps-search-path') {
         status = ObservationStatus.PLAUSIBLE;
         confidence = 0.85;
       }
@@ -250,7 +287,7 @@ export class RealityAdapter {
           const item = Array.isArray(data) ? data[0] : data;
 
           if (item) {
-            if (item.name && !facts.businessName) {
+            if (item.name && !facts.businessName && String(item.name).trim().toLowerCase() !== 'maps') {
               facts.businessName = String(item.name).trim();
               facts.nameSource = 'schema-jsonld';
             }
@@ -283,22 +320,25 @@ export class RealityAdapter {
             }
           }
         } catch (e) {
-          // JSON-LD parse skip
+          // Skip JSON-LD error
         }
       }
     }
 
     // B. Parse OpenGraph & HTML Head Title
-    if (!facts.businessName) {
+    if (!facts.businessName || facts.businessName.toLowerCase() === 'maps') {
       const ogTitle = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i);
-      if (ogTitle && ogTitle[1]) {
+      if (ogTitle && ogTitle[1] && ogTitle[1].trim().toLowerCase() !== 'maps') {
         facts.businessName = ogTitle[1].trim();
         facts.nameSource = 'opengraph-meta';
       } else {
         const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
         if (titleMatch && titleMatch[1]) {
-          facts.businessName = titleMatch[1].split('-')[0].split('|')[0].trim();
-          facts.nameSource = 'html-head-title';
+          const candidate = titleMatch[1].replace(/ - Google Maps$/, '').replace(/^Google Maps - /, '').split('-')[0].split('|')[0].trim();
+          if (candidate.toLowerCase() !== 'maps' && candidate.toLowerCase() !== 'google maps') {
+            facts.businessName = candidate;
+            facts.nameSource = 'html-head-title';
+          }
         }
       }
     }

@@ -49,8 +49,9 @@ export default function PheebsV0Page() {
 
       if (!res.ok) {
         clearInterval(stepInterval);
-        const err = await res.json();
-        setErrorMsg(err.error || "I couldn't confidently identify the business. Please provide another Google Business Profile.");
+        const errRes = await res.json();
+        const cleanErr = (errRes.error || '').replace(/^\[PipelineIntegrityError\]\s*/, '');
+        setErrorMsg(cleanErr || "I couldn't confidently identify the business. Please provide another Google Business Profile.");
         setIsGenerating(false);
         return;
       }
