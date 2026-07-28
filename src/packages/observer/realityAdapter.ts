@@ -1,7 +1,7 @@
 import { BusinessIdentity, ObservationData, ObservationStatus, Provenance } from '../shared/types';
 import { OBSERVATION_RULES } from './observationRules';
 
-export const REALITY_ADAPTER_VERSION = '0.2';
+export const REALITY_ADAPTER_VERSION = '0.3';
 
 interface ExtractedRawFacts {
   businessName?: string;
@@ -23,7 +23,7 @@ interface ExtractedRawFacts {
 /**
  * Reality Adapter v0 — True Web Eyes
  * A pure 0-LLM, 0-mock HTTP fetcher & Schema.org JSON-LD / HTML DOM parser.
- * Expands short Google Maps URLs (maps.app.goo.gl) to resolve canonical place identity.
+ * Expands short Google Maps URLs (maps.app.goo.gl) via 302 Location header inspection.
  */
 export class RealityAdapter {
   public static async fetchAndObserve(
@@ -37,8 +37,27 @@ export class RealityAdapter {
     let rawHtml = '';
     let fetchedOk = false;
     let finalUrl = cleanUrl;
+    let redirectLocation = '';
 
-    // 1. Fetch live web page HTML and resolve redirects
+    // 1. Resolve HTTP 301/302 Redirect Location Header (Crucial for maps.app.goo.gl short URLs)
+    try {
+      const initialRes = await fetch(cleanUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+        redirect: 'manual',
+      });
+      redirectLocation = initialRes.headers.get('location') || '';
+      if (redirectLocation) {
+        recoveryAttempts.push(`Resolved 302 Location header: ${redirectLocation}`);
+      }
+    } catch (e: any) {
+      // Manual redirect resolution skip
+    }
+
+    // 2. Fetch live web page HTML
     try {
       const response = await fetch(cleanUrl, {
         headers: {
@@ -50,7 +69,7 @@ export class RealityAdapter {
         redirect: 'follow',
       });
 
-      finalUrl = response.url || cleanUrl;
+      finalUrl = response.url || redirectLocation || cleanUrl;
 
       if (response.ok) {
         rawHtml = await response.text();
@@ -62,15 +81,16 @@ export class RealityAdapter {
       recoveryAttempts.push(`Direct HTTP fetch failed: ${err.message || 'Network error'}`);
     }
 
-    // 2. Parse Raw Facts strictly from HTML & Schema.org JSON-LD
+    // 3. Parse Raw Facts strictly from HTML & Schema.org JSON-LD
     const rawFacts = this.parseHtmlAndJsonLd(rawHtml, cleanUrl, fetchedOk);
 
-    // 3. Google Maps Short URL & Expanded URL Place Identity Resolution
+    // 4. Google Maps Location Header & URL Path Place Identity Resolution
     let nameVal = rawFacts.businessName;
     let nameSource = rawFacts.nameSource;
 
-    const urlsToAudit = [finalUrl, cleanUrl];
+    const urlsToAudit = [redirectLocation, finalUrl, cleanUrl];
     for (const u of urlsToAudit) {
+      if (!u) continue;
       if (!nameVal || nameVal.trim() === '' || nameVal.toLowerCase() === 'maps' || nameVal.toLowerCase() === 'google maps') {
         try {
           const urlObj = new URL(u);
@@ -79,10 +99,10 @@ export class RealityAdapter {
           if (urlObj.pathname.includes('/maps/place/')) {
             const placeSegment = urlObj.pathname.split('/maps/place/')[1];
             if (placeSegment) {
-              const rawName = placeSegment.split('/')[0].replace(/\+/g, ' ');
+              const rawName = placeSegment.split('/')[0].split('@')[0].replace(/\+/g, ' ');
               nameVal = decodeURIComponent(rawName);
-              nameSource = 'google-maps-place-path';
-              recoveryAttempts.push(`Extracted place identity "${nameVal}" from Google Maps place URL.`);
+              nameSource = 'google-maps-redirect-location';
+              recoveryAttempts.push(`Extracted real place identity "${nameVal}" from 302 location header.`);
             }
           }
           
@@ -101,7 +121,7 @@ export class RealityAdapter {
             if (urlObj.pathname.includes('/maps/search/')) {
               const searchSegment = urlObj.pathname.split('/maps/search/')[1];
               if (searchSegment) {
-                const rawName = searchSegment.split('/')[0].replace(/\+/g, ' ');
+                const rawName = searchSegment.split('/')[0].split('@')[0].replace(/\+/g, ' ');
                 nameVal = decodeURIComponent(rawName);
                 nameSource = 'google-maps-search-path';
               }
@@ -125,8 +145,8 @@ export class RealityAdapter {
     const businessIdentity: BusinessIdentity = {
       executionId,
       name: nameVal,
-      canonicalUrl: rawFacts.website || finalUrl,
-      domain: finalUrl.replace(/https?:\/\//, '').split('/')[0],
+      canonicalUrl: rawFacts.website || redirectLocation || finalUrl,
+      domain: (redirectLocation || finalUrl).replace(/https?:\/\//, '').split('/')[0],
       observedAt: now,
     };
 
@@ -167,7 +187,7 @@ export class RealityAdapter {
         }
       }
 
-      if (extractedBy === 'url-query-parameter' || extractedBy === 'google-maps-place-path' || extractedBy === 'google-maps-search-path') {
+      if (extractedBy === 'url-query-parameter' || extractedBy === 'google-maps-redirect-location' || extractedBy === 'google-maps-search-path') {
         status = ObservationStatus.PLAUSIBLE;
         confidence = 0.85;
       }
